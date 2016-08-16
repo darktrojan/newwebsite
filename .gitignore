@@ -1,5 +1,5 @@
 *.pyc
-media
-static
-venv
-website/db.sqlite3
+/media
+/static
+/venv
+/website/db.sqlite3

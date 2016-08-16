@@ -1,0 +1,41 @@
+.folder-icon {
+	background: url(icon-folder.svg) 0 0 no-repeat;
+	top: -1px;
+}
+.folder-icon {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	height: 16px;
+	width: 16px;
+	overflow: hidden;
+}
+a:hover .folder-icon {
+	background-position: 0 -16px;
+}
+div.image {
+	position: relative;
+	display: inline-block;
+	width: 200px;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: bottom;
+	margin: 10px 5px;
+}
+div.image > input {
+	position: absolute;
+}
+div.image > a > img {
+	max-width: 150px;
+	max-height: 120px;
+}
+div.image > div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 13px;
+	line-height: 16px;
+}
+div.image > div.name {
+	font-weight: 600;
+	margin-top: 5px;
+}
