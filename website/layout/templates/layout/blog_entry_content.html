@@ -1,0 +1,21 @@
+<article data-id="{{ entry.id }}">
+{% if not single %}
+	<h1><a href="{% url 'blog_entry' date=entry.dateslug slug=entry.slug %}">{{ entry.title }}</a></h1>
+{% else %}
+	<h1>{{ entry.title }}</h1>
+{% endif %}
+<ul>
+	<li>Posted: {{ entry.created }}</li>
+	{% if entry.modified != entry.created %}
+		<li>Last updated: {{ entry.modified }}</li>
+	{% endif %}
+	{% for t in entry.get_tags %}
+		{% if forloop.first %}<li>Tags: {% endif %}
+		<a href="/news/tag/{{ t }}">{{ t }}</a>
+		{% if forloop.last %}</li>{% endif %}
+	{% endfor %}
+</ul>
+<div>
+{{ entry.content | safe }}
+</div>
+</article>

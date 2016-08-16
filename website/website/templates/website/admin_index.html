@@ -1,0 +1,66 @@
+{% extends 'admin/index.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div id="content-main">
+{% if app_list %}
+	{% for app in app_list %}
+		<div class="app-{{ app.app_label }} module">
+		<table>
+		<caption>
+			<a href="{{ app.app_url }}" class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}">{{ app.name }}</a>
+		</caption>
+		{% for model in app.models %}
+			<tr class="model-{{ model.object_name|lower }}">
+			{% if model.admin_url %}
+				<th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+			{% else %}
+				<th scope="row">{{ model.name }}</th>
+			{% endif %}
+
+			{% if model.add_url %}
+				<td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+			{% else %}
+				<td>&nbsp;</td>
+			{% endif %}
+
+			{% if model.admin_url %}
+				<td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+			{% else %}
+				<td>&nbsp;</td>
+			{% endif %}
+			</tr>
+		{% endfor %}
+		{% if app.name == 'Content' and perms.layout.files %}
+			<tr class="model-files">
+				<th scope="row" colspan="3"><a href="/admin/files/">File Manager</a></th>
+			</tr>
+			<tr class="model-images">
+				<th scope="row" colspan="3"><a href="/admin/images/">Image Manager</a></th>
+			</tr>
+		{% endif %}
+		</table>
+		</div>
+	{% endfor %}
+
+	{% if perms.layout.admin %}
+		<div class="app-layout module">
+		<table width="100%">
+		<caption>
+			<a href="#" class="section" title="">Layout</a>
+		</caption>
+		{% if perms.layout.admin %}
+			<tr class="model-template">
+				<th scope="row"><a href="/admin/layout/">Templates and Stylesheets</a></th>
+			</tr>
+		{% endif %}
+		</table>
+		</div>
+	{% endif %}
+{% else %}
+	<p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'admin/change_list.html' %}
+
+{% block footer %}
+{{ block.super }}
+<label id="move-me">
+<select name="action-template" style="margin: 0 5px; display: none;">
+{% for key, item in template_names %}
+	<option>{{ item }}</li>
+{% endfor %}
+</select>
+</label>
+<script type="text/javascript">
+(function() {
+	var before = document.querySelector('#changelist-form .actions > label + *');
+	var node = document.querySelector('#move-me')
+	before.parentNode.insertBefore(node, before);
+
+	document.querySelector('select[name="action"]').onchange = function() {
+		document.querySelector('select[name="action-template"]').style.display = (this.value == 'change_template') ? null : 'none';
+	}
+})();
+</script>
+{% endblock %}

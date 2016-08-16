@@ -1,0 +1,7 @@
+Django==1.10
+Pillow==3.3.0
+argparse==1.2.1
+django-mptt==0.8.5
+easy-thumbnails==2.3
+pytz==2016.6.1
+wsgiref==0.1.2

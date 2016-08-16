@@ -1,0 +1,17 @@
+{% extends 'fruity.html' %}
+{% block content %}
+{% for entry in entries %}
+	{% include 'layout/blog_entry_content.html' with entry=entry %}
+{% endfor %}
+
+{% if entries.has_other_pages %}
+<div class="pagination">
+	{% if entries.has_previous %}
+		<a href="?page={{ entries.previous_page_number }}" rel="prev">Previous page</a>
+	{% endif %}
+	{% if entries.has_next %}
+		<a href="?page={{ entries.next_page_number }}" rel="next">Next page</a>
+	{% endif %}
+</div>
+{% endif %}
+{% endblock %}
