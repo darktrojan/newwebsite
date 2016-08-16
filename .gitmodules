@@ -1,0 +1,3 @@
+[submodule "pageedit"]
+	path = website/content/static/pageedit
+	url = git@github.com:darktrojan/pageedit.git
