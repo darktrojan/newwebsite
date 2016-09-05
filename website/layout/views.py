@@ -10,106 +10,93 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ngettext
 
-from content.models import Page
+from easy_thumbnails.alias import aliases
+from easy_thumbnails.files import get_thumbnailer
+
 from website.admin import admin_site
 
-ROOTS = {
-	'template': os.path.join(settings.MEDIA_ROOT, 'templates'),
-	'css': os.path.join(settings.MEDIA_ROOT, 'css'),
-}
-EXTENSIONS = {
-	'template': '.html',
-	'css': '.css',
-}
-HUMAN_NAMES = {
-	'template': 'Template',
-	'css': 'Stylesheet',
-}
+CSS_ROOT = os.path.join(settings.MEDIA_ROOT, 'css')
+CSS_EXTENSION = '.css'
 
 
 @staff_member_required
 @permission_required('layout.admin')
-def file_list(request):
+def css_list(request):
 	if request.method == 'POST':
-		for t in ['css', 'template']:
-			varname = 'new_' + t
-			if varname in request.POST:
-				file_name = request.POST[varname]
-				file_path = os.path.join(ROOTS[t], file_name + EXTENSIONS[t])
+		varname = 'new_css'
+		if varname in request.POST:
+			file_name = request.POST[varname]
+			file_path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
+			if os.path.exists(file_path):
+				messages.error(request, 'Stylesheet "%s" already exists.' % file_name)
+				return HttpResponseRedirect(reverse('css_list'))
+
+			os.mknod(file_path)
+			messages.success(request, 'Stylesheet "%s" created successfully.' % file_name)
+			return HttpResponseRedirect(
+				reverse('css_edit', kwargs={'file_name': file_name})
+			)
+
+		varname = 'delete_css'
+		if varname in request.POST:
+			deleted_count = 0
+			for file_name in request.POST.getlist(varname):
+				file_path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
 				if os.path.exists(file_path):
-					messages.error(request, '%s "%s" already exists.' % (HUMAN_NAMES[t], file_name))
-					return HttpResponseRedirect(reverse('file_list'))
+					os.unlink(file_path)
+					deleted_count += 1
 
-				os.mknod(file_path)
-				messages.success(request, '%s "%s" created successfully.' % (HUMAN_NAMES[t], file_name))
-				return HttpResponseRedirect(
-					reverse('file_edit', kwargs={'file_type': t, 'file_name': file_name})
-				)
+			if deleted_count:
+				messages.success(request, '%d stylesheet deleted successfully.' % deleted_count)
+			return HttpResponseRedirect(reverse('css_list'))
 
-			varname = 'delete_' + t
-			if varname in request.POST:
-				deleted_count = 0
-				for file_name in request.POST.getlist(varname):
-					file_path = os.path.join(ROOTS[t], file_name + EXTENSIONS[t])
-					if os.path.exists(file_path):
-						os.unlink(file_path)
-						deleted_count += 1
-
-				if deleted_count:
-					messages.success(request, '%d %s deleted successfully.' % (deleted_count, HUMAN_NAMES[t]))
-				return HttpResponseRedirect(reverse('file_list'))
-
-	files = {}
-	for file_type, root in ROOTS.iteritems():
-		files[file_type] = []
-		for f in sorted(os.listdir(root)):
-			name = f[:-len(EXTENSIONS[file_type])]
-			path = os.path.join(root, f)
-			if os.path.isfile(path):
-				obj = {
-					'name': name,
-					'mtime': date.fromtimestamp(os.path.getmtime(path)),
-					'size': os.path.getsize(path)
-				}
-				if (file_type == 'template'):
-					obj['page_count'] = Page.objects.filter(template=name).count()
-				files[file_type].append(obj)
+	files = []
+	for f in sorted(os.listdir(CSS_ROOT)):
+		name = f[:-len(CSS_EXTENSION)]
+		path = os.path.join(CSS_ROOT, f)
+		if os.path.isfile(path):
+			obj = {
+				'name': name,
+				'mtime': date.fromtimestamp(os.path.getmtime(path)),
+				'size': os.path.getsize(path)
+			}
+			files.append(obj)
 	context = dict(
 		# Include common variables for rendering the admin template.
 		admin_site.each_context(request),
-		title='Layout',
+		title='Stylesheets',
 		files=files,
 	)
-	return render(request, 'layout/file_list.html', context)
+	return render(request, 'layout/css_list.html', context)
 
 
 @staff_member_required
 @permission_required('layout.admin')
-def file_edit(request, file_type, file_name):
-	path = os.path.join(ROOTS[file_type], file_name + EXTENSIONS[file_type])
+def css_edit(request, file_name):
+	path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
 	if request.method == 'POST':
 		with open(path, 'w') as f:
 			f.write(request.POST['file_content'])
-		messages.success(request, 'Changes to %s "%s" saved.' % (HUMAN_NAMES[file_type], file_name))
+		messages.success(request, 'Changes to stylesheet "%s" saved.' % file_name)
 		if request.POST.get('_continue'):
 			return HttpResponseRedirect(
-				reverse('file_edit', kwargs={'file_type': file_type, 'file_name': file_name})
+				reverse('css_edit', kwargs={'file_name': file_name})
 			)
-		return HttpResponseRedirect(reverse('file_list'))
+		return HttpResponseRedirect(reverse('css_list'))
 
 	with open(path, 'r') as f:
 		file_content = f.read()
 
-	return render(request, 'layout/file_edit.html', dict(
+	return render(request, 'layout/css_edit.html', dict(
 		admin_site.each_context(request),
-		title='Template Editor' if file_type == 'template' else 'Stylesheet Editor',
+		title='Change stylesheet',
 		file_name=file_name,
 		file_content=file_content,
 	))
 
 
 @staff_member_required
-@permission_required('layout.admin')
+@permission_required('layout.files')
 def file_browser(request, template, path=None):
 	# path is checked by urls
 	if path is not None:
@@ -210,9 +197,6 @@ def file_browser(request, template, path=None):
 	return render(request, 'layout/' + template + '.html', context)
 
 
-from easy_thumbnails.alias import aliases
-from easy_thumbnails.files import get_thumbnailer
-
 @staff_member_required
 def all_images(request):
 	images = list()
@@ -226,7 +210,9 @@ def all_images(request):
 				thumbnailer = get_thumbnailer(p[len(settings.MEDIA_ROOT):])
 				images.append({
 					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
-					'thumb': os.path.join(settings.MEDIA_URL, thumbnailer.get_thumbnail(aliases.get('smallthumb')).name),
+					'thumb': os.path.join(
+						settings.MEDIA_URL, thumbnailer.get_thumbnail(aliases.get('smallthumb')).name
+					),
 				})
 
 	do_folder(os.path.join(settings.MEDIA_ROOT, 'images'))

@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='layout' %}">Layout</a>
+&rsaquo; Stylesheets
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+	<div class="module">
+		<table style="width: 100%; margin-bottom: 20px;">
+			<thead>
+				<tr>
+					<th scope="col" class="column-url">
+						<div class="text">Name</div>
+						<div class="clear"></div>
+					</th>
+					<th scope="col" class="column-size">
+						<div class="text">Size</div>
+						<div class="clear"></div>
+					</th>
+					<th scope="col" class="column-modified">
+						<div class="text">Modified</div>
+						<div class="clear"></div>
+					</th>
+				</tr>
+			</thead>
+			{% for f in files %}
+			<tr class="{% cycle 'row1' 'row2' %}">
+				<th><a href="{% url 'css_edit' file_name=f.name %}">{{ f.name }}</a></th>
+				<td>{{ f.size | filesizeformat }}</td>
+				<td>{{ f.mtime | date }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+{% endblock %}

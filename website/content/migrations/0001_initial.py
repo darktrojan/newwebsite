@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('url', models.CharField(max_length=255, unique=True)),
                 ('title', models.CharField(max_length=255)),
-                ('template', content.models.TemplateField(max_length=255)),
+                ('template', models.CharField(max_length=255)),
                 ('content', models.TextField()),
                 ('modified', models.DateTimeField(auto_now=True)),
             ],

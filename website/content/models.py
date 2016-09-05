@@ -2,33 +2,17 @@ from __future__ import unicode_literals
 
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.forms import widgets
 from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
 import reversion
-
-from layout.models import get_templates
-
-
-class TemplateField(models.TextField):
-	def __init__(self, *args, **kwargs):
-		super(TemplateField, self).__init__(*args, **kwargs)
-
-	def formfield(self, **kwargs):
-		defaults = {
-			'widget': widgets.Select
-		}
-		self.choices = get_templates()
-		defaults.update(kwargs)
-		return super(TemplateField, self).formfield(**defaults)
 
 
 @reversion.register()
 class Page(models.Model):
 	url = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
-	template = TemplateField(max_length=255)
+	template = models.ForeignKey('layout.Template')
 	content = models.TextField()
 	modified = models.DateTimeField(auto_now=True)
 
