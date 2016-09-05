@@ -5,6 +5,15 @@
 <link rel="stylesheet" type="text/css" href="{% static "admin/content/change_form.css" %}">{% endblock %}
 
 {% block footer %}
+<div id="imagearea">
+	<form>
+		<img style="max-width: 150px; max-height: 120px;" />
+		<input type="hidden" name="src" />
+		<label>Width: <input type="text" name="width" size="2" /></label>
+		<label>Height: <input type="text" name="height" size="2" /></label>
+		<button>Insert</button>
+	</form>
+</div>
 {{ block.super }}
 <script type="text/javascript" src="{% static "pageedit/pageedit.js" %}"></script>
 <script type="text/javascript" src="{% static "admin/content/change_form.js" %}"></script>

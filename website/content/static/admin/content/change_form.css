@@ -38,6 +38,10 @@
 #richarea h3, #edit_nodetype_dropdown h3 {
 	font-size: 14px;
 }
+#richarea img {
+	max-width: 100%;
+	height: auto;
+}
 #richarea ol,
 #richarea ul {
 	padding: 0 0 0 1.5em;
@@ -48,4 +52,26 @@
 }
 textarea {
 	display: none;
+}
+#imagearea {
+	display: none;
+	position: fixed;
+	top: 50px;
+	left: 50%;
+	transform: translate(-405px);
+	width: 810px;
+	padding: 15px;
+	box-sizing: border-box;
+	background-color: #fff;
+	box-shadow: 0 0 50px;
+	z-index: 100;
+	max-height: calc(100% - 100px);
+	overflow: auto;
+}
+#imagearea > div.image {
+	display: inline-block;
+	width: 120px;
+	margin: 5px;
+	text-align: center;
+	line-height: 0;
 }

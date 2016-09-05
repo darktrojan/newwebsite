@@ -32,12 +32,6 @@ class Page(models.Model):
 	content = models.TextField()
 	modified = models.DateTimeField(auto_now=True)
 
-	def as_template(self):
-		return '\n'.join([
-			'{%% extends "%s.html" %%}' % self.template,
-			'{%% block content %%}%s{%% endblock %%}' % self.content,
-		])
-
 	def __unicode__(self):
 		return self.url
 

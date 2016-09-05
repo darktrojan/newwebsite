@@ -121,6 +121,7 @@ STATIC_ROOT = '/home/geoff/Documents/newwebsite/static/'
 THUMBNAIL_ALIASES = {
     '': {
         'thumb': {'size': (150, 120), 'crop': False},
+        'smallthumb': {'size': (120, 96), 'crop': False},
     },
 }
 THUMBNAIL_BASEDIR = 'thumbnails'

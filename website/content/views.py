@@ -1,18 +1,28 @@
 from content.models import BlogEntry, Page
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.template import RequestContext, Template
+from django.utils.safestring import mark_safe
+
+from reversion.models import Version
 
 
 def test(request):
 	page = get_object_or_404(Page, url=request.path)
-	template = Template(page.as_template())
-	context = RequestContext(request, {
+
+	if 'revision' in request.GET:
+		try:
+			version = Version.objects.get_for_object(page).get(id=request.GET['revision'])
+			page.template = version.field_dict.get('template')
+			page.title = version.field_dict.get('title')
+			page.content = version.field_dict.get('content')
+		except Version.DoesNotExist:
+			pass
+
+	return render(request, page.template + '.html', {
 		'title': page.title,
+		'content': mark_safe(page.content)
 	})
-	return HttpResponse(template.render(context))
 
 
 def blog_list(request, year=None, date=None, tag=None):

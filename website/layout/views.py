@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ngettext
 
@@ -209,3 +209,26 @@ def file_browser(request, template, path=None):
 	)
 	return render(request, 'layout/' + template + '.html', context)
 
+
+from easy_thumbnails.alias import aliases
+from easy_thumbnails.files import get_thumbnailer
+
+@staff_member_required
+def all_images(request):
+	images = list()
+
+	def do_folder(path):
+		for p in os.listdir(path):
+			p = os.path.join(path, p)
+			if (os.path.isdir(p)):
+				do_folder(p)
+			else:
+				thumbnailer = get_thumbnailer(p[len(settings.MEDIA_ROOT):])
+				images.append({
+					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
+					'thumb': os.path.join(settings.MEDIA_URL, thumbnailer.get_thumbnail(aliases.get('smallthumb')).name),
+				})
+
+	do_folder(os.path.join(settings.MEDIA_ROOT, 'images'))
+
+	return JsonResponse(images, safe=False)
