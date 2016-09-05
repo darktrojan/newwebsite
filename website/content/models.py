@@ -6,6 +6,7 @@ from django.forms import widgets
 from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
+import reversion
 
 from layout.models import get_templates
 
@@ -23,6 +24,7 @@ class TemplateField(models.TextField):
 		return super(TemplateField, self).formfield(**defaults)
 
 
+@reversion.register()
 class Page(models.Model):
 	url = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
@@ -42,7 +44,7 @@ class Page(models.Model):
 
 class MenuEntry(MPTTModel):
 	label = models.CharField(max_length=255)
-	href = models.CharField(max_length=255, blank=True, verbose_name='Link to')
+	href = models.CharField(max_length=255, blank=True, verbose_name='Links to')
 	parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
 
 	def __unicode__(self):

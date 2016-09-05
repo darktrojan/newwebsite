@@ -1,15 +1,17 @@
 from django.contrib import admin, messages
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from mptt.admin import DraggableMPTTAdmin
+from reversion.admin import VersionAdmin
 
 from content.models import BlogEntry, MenuEntry, Page
 from layout.models import get_templates
 from website.admin import admin_site
 
 
-class PageAdmin(admin.ModelAdmin):
+class PageAdmin(VersionAdmin):
 	list_display = ('url', 'title', 'modified', 'template', 'view_on_site_inline',)
 	list_filter = ('template',)
 	actions = ('change_template',)
@@ -49,6 +51,14 @@ class PageAdmin(admin.ModelAdmin):
 
 class MenuEntryAdmin(DraggableMPTTAdmin):
 	list_display = ('tree_actions', 'indented_title', 'href',)
+
+	def indented_title(self, item):
+		return format_html(
+			'<span style="margin-inline-start: {}px">{}</span>',
+			item._mpttfield('level') * self.mptt_level_indent,
+			item,
+		)
+	indented_title.short_description = 'Title'
 
 
 class BlogEntryAdmin(admin.ModelAdmin):
