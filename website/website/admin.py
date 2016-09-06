@@ -37,7 +37,7 @@ class MyAdminSite(AdminSite):
 				'name': 'Stylesheets',
 				'object_name': 'css',
 				'admin_url': reverse('css_list'),
-				'add_url': reverse('css_list'),
+				'add_url': reverse('css_add'),
 			}
 			if label == 'layout':
 				app_dict['models'].append(css_model)

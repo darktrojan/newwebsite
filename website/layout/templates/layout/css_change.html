@@ -17,10 +17,19 @@
 <div id="content-main">
 	<form action="" method="post">
 		{% csrf_token %}
-		<input type="hidden" name="file_name" value="{{ file_name }}" />
-		<fieldset class="module">
-			<div class="formrow">
-				<textarea name="file_content" rows="20" style="width: 100%; box-sizing: border-box;">{{ file_content }}</textarea>
+		{% if file_name %}<input type="hidden" name="file_name" value="{{ file_name }}" />{% endif %}
+		<fieldset class="module aligned">
+			{% if not file_name %}<div class="form-row field-name">
+				<div>
+					<label class="required" for="file_name">Name:</label>
+					<input class="vTextField" id="file_name" maxlength="32" name="file_name" required type="text">
+				</div>
+			</div>{% endif %}
+			<div class="form-row field-content">
+				<div>
+					<label class="required" for="file_content">Content:</label>
+					<textarea class="vLargeTextField" cols="40" id="file_content" name="file_content" rows="10" required="">{{ file_content }}</textarea>
+				</div>
 			</div>
 		</fieldset>
 		<div class="submit-row">

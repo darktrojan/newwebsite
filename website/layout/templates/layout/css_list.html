@@ -13,6 +13,11 @@
 
 {% block content %}
 <div id="content-main">
+	<ul class="object-tools">
+		<li>
+			<a href="{% url 'css_add' %}" class="addlink">Add stylesheet</a>
+		</li>
+	</ul>
 	<div class="module">
 		<table style="width: 100%; margin-bottom: 20px;">
 			<thead>
@@ -33,7 +38,7 @@
 			</thead>
 			{% for f in files %}
 			<tr class="{% cycle 'row1' 'row2' %}">
-				<th><a href="{% url 'css_edit' file_name=f.name %}">{{ f.name }}</a></th>
+				<th><a href="{% url 'css_change' file_name=f.name %}">{{ f.name }}</a></th>
 				<td>{{ f.size | filesizeformat }}</td>
 				<td>{{ f.mtime | date }}</td>
 			</tr>

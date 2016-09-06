@@ -34,7 +34,7 @@ def css_list(request):
 			os.mknod(file_path)
 			messages.success(request, 'Stylesheet "%s" created successfully.' % file_name)
 			return HttpResponseRedirect(
-				reverse('css_edit', kwargs={'file_name': file_name})
+				reverse('css_change', kwargs={'file_name': file_name})
 			)
 
 		varname = 'delete_css'
@@ -72,7 +72,19 @@ def css_list(request):
 
 @staff_member_required
 @permission_required('layout.admin')
-def css_edit(request, file_name):
+def css_add(request):
+	if request.method == 'POST':
+		return css_change(request, request.POST['file_name'])
+
+	return render(request, 'layout/css_change.html', dict(
+		admin_site.each_context(request),
+		title='Add stylesheet',
+	))
+
+
+@staff_member_required
+@permission_required('layout.admin')
+def css_change(request, file_name):
 	path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
 	if request.method == 'POST':
 		with open(path, 'w') as f:
@@ -80,14 +92,14 @@ def css_edit(request, file_name):
 		messages.success(request, 'Changes to stylesheet "%s" saved.' % file_name)
 		if request.POST.get('_continue'):
 			return HttpResponseRedirect(
-				reverse('css_edit', kwargs={'file_name': file_name})
+				reverse('css_change', kwargs={'file_name': file_name})
 			)
 		return HttpResponseRedirect(reverse('css_list'))
 
 	with open(path, 'r') as f:
 		file_content = f.read()
 
-	return render(request, 'layout/css_edit.html', dict(
+	return render(request, 'layout/css_change.html', dict(
 		admin_site.each_context(request),
 		title='Change stylesheet',
 		file_name=file_name,
