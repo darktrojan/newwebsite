@@ -4,4 +4,7 @@ from layout.models import Template
 from website.admin import admin_site
 
 
-admin_site.register(Template, VersionAdmin)
+class TemplateAdmin(VersionAdmin):
+	list_display = ('name', 'modified',)
+
+admin_site.register(Template, TemplateAdmin)

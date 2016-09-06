@@ -1,4 +1,5 @@
 from django.contrib.admin import AdminSite, site
+from django.core.urlresolvers import reverse
 
 
 class MyAdminSite(AdminSite):
@@ -6,12 +7,45 @@ class MyAdminSite(AdminSite):
 		super(MyAdminSite, self).__init__(*args, **kwargs)
 		self._registry.update(site._registry)
 
-	# def get_app_list(self, *args, **kwargs):
-	# 	app_list = super(MyAdminSite, self).get_app_list(*args, **kwargs)
-	# 	app_list = sorted(app_list, key=lambda x: x['name'].lower(), reverse=True)
-	# 	return app_list
+	def _build_app_dict(self, request, label=None):
+		app_dict = super(MyAdminSite, self)._build_app_dict(request, label)
 
-	# site_header = 'Monty Python administration'
+		if not app_dict:
+			return app_dict
+
+		if request.user.has_perm('layout.files'):
+			files_model = {
+				'name': 'Files',
+				'object_name': 'files',
+				'admin_url': reverse('file_browser', kwargs={'template': 'files'}),
+			}
+			images_model = {
+				'name': 'Images',
+				'object_name': 'images',
+				'admin_url': reverse('file_browser', kwargs={'template': 'images'}),
+			}
+
+			if label == 'content':
+				app_dict['models'].append(files_model)
+				app_dict['models'].append(images_model)
+			elif 'content' in app_dict:
+				app_dict['content']['models'].append(files_model)
+				app_dict['content']['models'].append(images_model)
+
+		if request.user.has_perm('layout.admin'):
+			css_model = {
+				'name': 'Stylesheets',
+				'object_name': 'css',
+				'admin_url': reverse('css_list'),
+				'add_url': reverse('css_list'),
+			}
+			if label == 'layout':
+				app_dict['models'].append(css_model)
+			elif 'layout' in app_dict:
+				app_dict['layout']['models'].append(css_model)
+
+		return app_dict
+
 	index_template = 'website/admin_index.html'
 
 admin_site = MyAdminSite(name='myadmin')

@@ -24,8 +24,8 @@ class PageAdmin(VersionAdmin):
 	# 	'fields': ('url', 'template',),
 	# }),)
 
-	change_list_template = 'admin/content/change_list.html'
-	# change_form_template = 'admin/content/change_form.html'
+	change_list_template = 'admin/content/page/change_list.html'
+	change_form_template = 'admin/content/htmledit_form.html'
 
 	def changelist_view(self, request, extra_context=None):
 		extra_context = extra_context or {}
@@ -67,6 +67,8 @@ class BlogEntryAdmin(admin.ModelAdmin):
 	list_display = ('title', 'created', 'modified', 'view_on_site_inline',)
 	ordering = ('-created',)
 	prepopulated_fields = {'slug': ('title',)}
+
+	change_form_template = 'admin/content/htmledit_form.html'
 
 	def view_on_site(self, obj):
 		return obj.get_absolute_url()
