@@ -32,5 +32,5 @@ urlpatterns += [
 		r'^news/(?P<date>\d{4}-\d{2})/(?P<slug>[-\w]+)$',
 		content.views.blog_entry, name='blog_entry'
 	),
-	url(r'^', content.views.test)
+	url(r'^', content.views.page)
 ]

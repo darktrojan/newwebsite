@@ -1,15 +1,17 @@
 from content.models import BlogEntry, Page
+from layout.models import Template as LayoutTemplate
+from website import settings
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
-from django.template import RequestContext, Template
+from django.shortcuts import get_object_or_404
+from django.template import RequestContext, Template, loader
 from django.utils.safestring import mark_safe
 
 from reversion.models import Version
 
 
-def test(request):
+def page(request):
 	page = get_object_or_404(Page, url=request.path)
 
 	if 'revision' in request.GET:
@@ -52,16 +54,27 @@ def blog_list(request, year=None, date=None, tag=None):
 		# If page is out of range (e.g. 9999), deliver last page of results.
 		entries = paginator.page(paginator.num_pages)
 
-	return render(request, 'layout/blog_list.html', {
-		'entries': entries,
+	template_object = LayoutTemplate.objects.get(name=settings.NEWS_TEMPLATE_NAME)
+	template = Template(template_object.content)
+	context = RequestContext(request, {
+		'title': 'News',
+		'content': loader.render_to_string('content/blog_list.html', {
+			'entries': entries,
+		})
 	})
+	return HttpResponse(template.render(context))
 
 
 def blog_entry(request, date, slug):
 	entry = get_object_or_404(
 		BlogEntry, created__year=date[0:4], created__month=date[5:7], slug=slug
 	)
-	return render(request, 'layout/blog_entry.html', {
+	template_object = LayoutTemplate.objects.get(name=settings.NEWS_TEMPLATE_NAME)
+	template = Template(template_object.content)
+	context = RequestContext(request, {
 		'title': entry.title,
-		'entry': entry,
+		'content': loader.render_to_string('content/blog_entry.html', {
+			'entry': entry,
+		})
 	})
+	return HttpResponse(template.render(context))
