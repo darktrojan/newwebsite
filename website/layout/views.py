@@ -147,6 +147,25 @@ def file_browser(request, template, path=None):
 				request, '%d %s deleted.' %
 				(deleted_count, ngettext('file', 'files', deleted_count))
 			)
+		elif request.POST.get('action') == 'move_selected':
+			moved_count = 0
+			destination = request.POST.get('action-destination')
+			if destination == '':
+				destination = os.path.join(settings.MEDIA_ROOT, template)
+			else:
+				destination = os.path.join(settings.MEDIA_ROOT, template, destination)
+
+			for n in request.POST.getlist('_selected_action'):
+				source_path = os.path.join(root, n)
+				destination_path = os.path.join(destination, n)
+
+				os.rename(source_path, destination_path)
+				moved_count += 1
+
+			messages.success(
+				request, '%d %s moved.' %
+				(moved_count, ngettext('file', 'files', moved_count))
+			)
 
 		if path is not None:
 			kwargs['path'] = path
@@ -159,11 +178,12 @@ def file_browser(request, template, path=None):
 		dirs.append({
 			'name': 'Parent folder',
 			'url': reverse('file_browser', kwargs={'template': template, 'path': os.path.dirname(path)}),
+			'path': os.path.dirname(path),
 		})
 		parents.append(os.path.basename(path))
 		parent = os.path.dirname(path)
 		while parent:
-			parents.append(parent)
+			parents.append(os.path.basename(parent))
 			parent = os.path.dirname(parent)
 		parents.reverse()
 
@@ -175,7 +195,8 @@ def file_browser(request, template, path=None):
 				'url': reverse('file_browser', kwargs={
 					'template': template,
 					'path': f_path[len(settings.MEDIA_ROOT) + len(template) + 1:]
-				})
+				}),
+				'path': f_path[len(settings.MEDIA_ROOT) + len(template) + 1:],
 			})
 		elif os.path.isfile(f_path):
 			files.append({
@@ -184,6 +205,7 @@ def file_browser(request, template, path=None):
 				'mtime': date.fromtimestamp(os.path.getmtime(f_path)),
 				'size': os.path.getsize(f_path),
 			})
+
 	context = dict(
 		# Include common variables for rendering the admin template.
 		admin_site.each_context(request),

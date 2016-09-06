@@ -45,10 +45,22 @@
 			{% endfor %}
 			</table>
 			<div class="actions">
-				<label>Action: <select name="action" required>
-				<option value="" selected="selected">---------</option>
-				<option value="delete_selected">Delete selected files</option>
-				</select></label><input class="select-across" name="select_across" type="hidden" value="0" />
+				<label>
+					Action:
+					<select name="action" required>
+						<option value="" selected="selected">---------</option>
+						<option value="delete_selected">Delete selected files</option>
+						{% if dirs|length %}
+						<option value="move_selected">Move selected files to&hellip;</option>
+						{% endif %}
+					</select>
+				</label><label>
+					<select name="action-destination" style="margin: 0 5px; display: none;">
+						{% for d in dirs %}
+							<option value="{{ d.path }}">{{ d.name }}</option>
+						{% endfor %}
+					</select>
+				</label><input class="select-across" name="select_across" type="hidden" value="0" />
 				<button type="submit" class="button" title="Run the selected action" name="index" value="0">Go</button>
 				<span class="action-counter" data-actions-icnt="{{ files|length }}">0 of {{ files|length }} selected</span>
 			</div>
@@ -111,4 +123,15 @@
 		</form>
 	</div>
 </div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script type="text/javascript">
+(function() {
+	document.querySelector('select[name="action"]').onchange = function() {
+		document.querySelector('select[name="action-destination"]').style.display = (this.value == 'move_selected') ? null : 'none';
+	}
+})();
+</script>
 {% endblock %}
