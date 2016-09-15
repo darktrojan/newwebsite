@@ -7,6 +7,12 @@ from django.utils import timezone
 from mptt.models import MPTTModel, TreeForeignKey
 import reversion
 
+PUBLISH_STATUS_CHOICES = (
+	('P', 'Published'),
+	('D', 'Draft'),
+	('A', 'Archived'),
+)
+
 
 @reversion.register()
 class Page(models.Model):
@@ -15,6 +21,7 @@ class Page(models.Model):
 	template = models.ForeignKey('layout.Template')
 	content = models.TextField()
 	modified = models.DateTimeField(auto_now=True)
+	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
 	def __unicode__(self):
 		return self.url
@@ -39,7 +46,8 @@ class BlogEntry(models.Model):
 	slug = models.SlugField(max_length=255)
 	title = models.CharField(max_length=255, blank=False)
 	content = models.TextField()
-	tags = models.CharField(max_length=255, blank=False)
+	tags = models.CharField(max_length=255, blank=True)
+	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
 	def __unicode__(self):
 		return self.title

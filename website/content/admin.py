@@ -11,10 +11,14 @@ from layout.models import Template
 from website.admin import admin_site
 
 
+def make_published(modeladmin, request, queryset):
+	queryset.update(status='P')
+
+
 class PageAdmin(VersionAdmin):
-	list_display = ('url', 'title', 'modified', 'template', 'view_on_site_inline',)
-	list_filter = ('template',)
-	actions = ('change_template',)
+	list_display = ('url', 'title', 'status', 'modified', 'template', 'view_on_site_inline',)
+	list_filter = ('status', 'template',)
+	actions = ('change_template', make_published,)
 	ordering = ('url',)
 
 	# fieldsets = ((None, {
@@ -41,6 +45,7 @@ class PageAdmin(VersionAdmin):
 			(updated, ngettext('page', 'pages', updated), Template.objects.get(pk=new_template).name)
 		)
 	change_template.short_description = u'Change template to\u2026'
+	make_published.short_description = 'Mark selected pages as published'
 
 	def view_on_site(self, obj):
 		return obj.url
@@ -64,11 +69,14 @@ class MenuEntryAdmin(DraggableMPTTAdmin):
 
 
 class BlogEntryAdmin(VersionAdmin):
-	list_display = ('title', 'created', 'modified', 'view_on_site_inline',)
+	list_display = ('title', 'status', 'modified', 'view_on_site_inline',)
+	list_filter = ('status',)
+	actions = (make_published,)
 	ordering = ('-created',)
 	prepopulated_fields = {'slug': ('title',)}
 
 	change_form_template = 'admin/content/htmledit_form.html'
+	make_published.short_description = 'Mark selected entries as published'
 
 	def view_on_site(self, obj):
 		return obj.get_absolute_url()

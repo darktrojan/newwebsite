@@ -3,6 +3,7 @@
 	border: 1px #ccc solid;
 	box-sizing: border-box;
 	padding: 5px;
+	min-height: 200px;
 }
 #richarea > :first-child {
 	margin-top: 0;

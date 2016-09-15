@@ -3,7 +3,7 @@ from layout.models import Template as LayoutTemplate
 from website import settings
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, Template, loader
 from django.utils.safestring import mark_safe
@@ -13,6 +13,9 @@ from reversion.models import Version
 
 def page(request):
 	page = get_object_or_404(Page, url=request.path)
+
+	if not request.user.has_perm('content.add_page') and page.status != 'P':
+		raise Http404
 
 	if 'revision' in request.GET:
 		try:
@@ -41,6 +44,10 @@ def blog_list(request, year=None, date=None, tag=None):
 		entry_list = BlogEntry.objects.filter(tags__regex=regex)
 	else:
 		entry_list = BlogEntry.objects.all()
+
+	if not request.user.has_perm('content.add_blogentry'):
+		entry_list = entry_list.filter(status='P')
+
 	entry_list = entry_list.order_by('-created')
 	paginator = Paginator(entry_list, 5)
 
@@ -69,6 +76,10 @@ def blog_entry(request, date, slug):
 	entry = get_object_or_404(
 		BlogEntry, created__year=date[0:4], created__month=date[5:7], slug=slug
 	)
+
+	if not request.user.has_perm('content.add_blogentry') and entry.status != 'P':
+		raise Http404
+
 	template_object = LayoutTemplate.objects.get(name=settings.NEWS_TEMPLATE_NAME)
 	template = Template(template_object.content)
 	context = RequestContext(request, {
