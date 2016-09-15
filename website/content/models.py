@@ -32,6 +32,7 @@ class MenuEntry(MPTTModel):
 		verbose_name_plural = 'menu entries'
 
 
+@reversion.register()
 class BlogEntry(models.Model):
 	created = models.DateTimeField(default=timezone.now)
 	modified = models.DateTimeField(auto_now=True)

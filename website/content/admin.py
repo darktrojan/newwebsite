@@ -1,4 +1,4 @@
-from django.contrib import admin, messages
+from django.contrib import messages
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
@@ -63,7 +63,7 @@ class MenuEntryAdmin(DraggableMPTTAdmin):
 	indented_title.short_description = 'Title'
 
 
-class BlogEntryAdmin(admin.ModelAdmin):
+class BlogEntryAdmin(VersionAdmin):
 	list_display = ('title', 'created', 'modified', 'view_on_site_inline',)
 	ordering = ('-created',)
 	prepopulated_fields = {'slug': ('title',)}
