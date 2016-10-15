@@ -8,7 +8,11 @@
 	{% for f in files %}
 		<div class="image">
 			<input class="action-select" name="_selected_action" value="{{ f.name }}" type="checkbox">
-			<a href="{{ MEDIA_URL }}{{ f.path }}"><img src="{{ f.path|thumbnail_url:'thumb' }}" /></a>
+			{% if f.path|lower|slice:"-4:" == ".svg" %}
+				<a href="{{ MEDIA_URL }}{{ f.path }}"><img src="{{ MEDIA_URL }}{{ f.path }}" /></a>
+			{% else %}
+				<a href="{{ MEDIA_URL }}{{ f.path }}"><img src="{{ f.path|thumbnail_url:'thumb' }}" /></a>
+			{% endif %}
 			<div class="name">{{ f.name }}</div>
 			<div class="size">{{ f.size | filesizeformat }}</div>
 			<div class="date">{{ f.mtime | date }}</div class="date">
