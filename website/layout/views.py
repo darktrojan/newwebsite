@@ -30,32 +30,6 @@ TYPE_NAMES = {
 def layoutfile_list(request, file_type):
 	root = ROOTS[file_type]
 	type_name = TYPE_NAMES[file_type]
-	if request.method == 'POST':
-		varname = 'new_layoutfile'
-		if varname in request.POST:
-			file_name = request.POST[varname]
-			file_path = os.path.join(root, file_name)
-			if os.path.exists(file_path):
-				messages.error(request, '%s "%s" already exists.' % (type_name, file_name))
-				return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
-
-			os.mknod(file_path)
-			messages.success(request, '%s "%s" created successfully.' % (type_name, file_name))
-			return HttpResponseRedirect(
-				reverse('layoutfile_change', kwargs={'file_type': file_type, 'file_name': file_name})
-			)
-
-		varname = 'delete_layoutfile'
-		if varname in request.POST:
-			for file_name in request.POST.getlist(varname):
-				file_path = os.path.join(root, file_name)
-				if os.path.exists(file_path):
-					os.unlink(file_path)
-					messages.success(
-						request, '%s "%s" deleted successfully.' % (type_name, file_name)
-					)
-
-			return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
 
 	files = []
 	for name in sorted(os.listdir(root)):
