@@ -26,6 +26,8 @@ def page(request):
 			pass
 
 	return render(request, page.template, {
+		'site_name': settings.SITE_NAME,
+		'url': page.url,
 		'title': page.title,
 		'content': mark_safe(page.content)
 	})
@@ -59,6 +61,7 @@ def blog_list(request, year=None, date=None, tag=None):
 		entries = paginator.page(paginator.num_pages)
 
 	return render(request, settings.NEWS_TEMPLATE_NAME, {
+		'site_name': settings.SITE_NAME,
 		'title': 'News',
 		'content': loader.render_to_string('content/blog_list.html', {
 			'entries': entries,
@@ -75,6 +78,7 @@ def blog_entry(request, date, slug):
 		raise Http404
 
 	return render(request, settings.NEWS_TEMPLATE_NAME, {
+		'site_name': settings.SITE_NAME,
 		'title': entry.title,
 		'content': loader.render_to_string('content/blog_entry.html', {
 			'entry': entry,

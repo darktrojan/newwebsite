@@ -76,7 +76,7 @@ def layoutfile_change(request, file_type, file_name):
 	type_name = TYPE_NAMES[file_type]
 	if request.method == 'POST':
 		with open(path, 'w') as f:
-			f.write(request.POST['file_content'])
+			f.write(request.POST['file_content'].encode('utf-8'))
 		messages.success(request, 'Changes to %s "%s" saved.' % (type_name, file_name))
 		if request.POST.get('_continue'):
 			return HttpResponseRedirect(

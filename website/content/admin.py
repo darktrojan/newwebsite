@@ -21,12 +21,12 @@ class PageAdmin(VersionAdmin):
 	actions = ('change_template', make_published,)
 	ordering = ('url',)
 
-	# fieldsets = ((None, {
-	# 	'fields': ('title', 'content',)
-	# }), ('Advanced options', {
-	# 	'classes': ('collapse',),
-	# 	'fields': ('url', 'template',),
-	# }),)
+	fieldsets = ((None, {
+		'fields': (('title', 'url',), 'content',)
+	}), ('Advanced options', {
+		'classes': ('collapse',),
+		'fields': ('template', 'status',),
+	}),)
 
 	change_list_template = 'admin/content/page/change_list.html'
 	change_form_template = 'admin/content/htmledit_form.html'

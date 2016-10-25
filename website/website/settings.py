@@ -126,4 +126,5 @@ THUMBNAIL_ALIASES = {
 }
 THUMBNAIL_BASEDIR = 'thumbnails'
 
+SITE_NAME = 'Foo\'s Bar'
 NEWS_TEMPLATE_NAME = 'fruity.html'
