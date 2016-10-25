@@ -9,11 +9,17 @@ from django.conf.urls.static import static
 from website.admin import admin_site
 
 urlpatterns = [
-	url(r'^admin/layout/css/$', admin_site.admin_view(layout.views.css_list), name='css_list'),
-	url(r'^admin/layout/css/add/$', admin_site.admin_view(layout.views.css_add), name='css_add'),
 	url(
-		r'^admin/layout/css/(?P<file_name>[-\w]+)/change/$',
-		admin_site.admin_view(layout.views.css_change), name='css_change'
+		r'^admin/layout/(?P<file_type>css|template)/$',
+		admin_site.admin_view(layout.views.layoutfile_list), name='layoutfile_list'
+	),
+	url(
+		r'^admin/layout/(?P<file_type>css|template)/add/$',
+		admin_site.admin_view(layout.views.layoutfile_add), name='layoutfile_add'
+	),
+	url(
+		r'^admin/layout/(?P<file_type>css|template)/(?P<file_name>[-\w]+\.(css|html))/change/$',
+		admin_site.admin_view(layout.views.layoutfile_change), name='layoutfile_change'
 	),
 	url(
 		r'^admin/(?P<template>files|images)/(?P<path>[-\w/ ]+)?$',

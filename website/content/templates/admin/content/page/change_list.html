@@ -4,8 +4,8 @@
 {{ block.super }}
 <label id="move-me">
 <select name="action-template" style="margin: 0 5px; display: none;">
-{% for pk, name in templates.items %}
-	<option value="{{ pk }}">{{ name }}</li>
+{% for name in template_names %}
+	<option value="{{ name }}">{{ name }}</li>
 {% endfor %}
 </select>
 </label>

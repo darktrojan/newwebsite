@@ -36,13 +36,19 @@ class MyAdminSite(AdminSite):
 			css_model = {
 				'name': 'Stylesheets',
 				'object_name': 'css',
-				'admin_url': reverse('css_list'),
-				'add_url': reverse('css_add'),
+				'admin_url': reverse('layoutfile_list', kwargs={'file_type': 'css'}),
+				'add_url': reverse('layoutfile_add', kwargs={'file_type': 'css'}),
+			}
+			templates_model = {
+				'name': 'Templates',
+				'object_name': 'template',
+				'admin_url': reverse('layoutfile_list', kwargs={'file_type': 'template'}),
+				'add_url': reverse('layoutfile_add', kwargs={'file_type': 'template'}),
 			}
 			if label == 'layout':
-				app_dict['models'].append(css_model)
+				app_dict['models'] = [css_model, templates_model]
 			elif 'layout' in app_dict:
-				app_dict['layout']['models'].append(css_model)
+				app_dict['layout']['models'] = [css_model, templates_model]
 
 		return app_dict
 

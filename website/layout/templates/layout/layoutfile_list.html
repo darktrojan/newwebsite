@@ -7,7 +7,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label='layout' %}">Layout</a>
-&rsaquo; Stylesheets
+&rsaquo; {{ file_type_name_plural }}
 </div>
 {% endblock %}
 
@@ -15,7 +15,7 @@
 <div id="content-main">
 	<ul class="object-tools">
 		<li>
-			<a href="{% url 'css_add' %}" class="addlink">Add stylesheet</a>
+			<a href="{% url 'layoutfile_add' file_type=file_type %}" class="addlink">Add {{ file_type_name | lower }}</a>
 		</li>
 	</ul>
 	<div class="module">
@@ -38,7 +38,7 @@
 			</thead>
 			{% for f in files %}
 			<tr class="{% cycle 'row1' 'row2' %}">
-				<th><a href="{% url 'css_change' file_name=f.name %}">{{ f.name }}</a></th>
+				<th><a href="{% url 'layoutfile_change' file_type=file_type file_name=f.name %}">{{ f.name }}</a></th>
 				<td>{{ f.size | filesizeformat }}</td>
 				<td>{{ f.mtime | date }}</td>
 			</tr>

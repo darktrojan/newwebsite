@@ -15,45 +15,51 @@ from easy_thumbnails.files import get_thumbnailer
 
 from website.admin import admin_site
 
-CSS_ROOT = os.path.join(settings.MEDIA_ROOT, 'css')
-CSS_EXTENSION = '.css'
+ROOTS = {
+	'css': os.path.join(settings.MEDIA_ROOT, 'css'),
+	'template': os.path.join(settings.MEDIA_ROOT, 'templates')
+}
+TYPE_NAMES = {
+	'css': 'Stylesheet',
+	'template': 'Template'
+}
 
 
 @staff_member_required
 @permission_required('layout.admin')
-def css_list(request):
+def layoutfile_list(request, file_type):
+	root = ROOTS[file_type]
+	type_name = TYPE_NAMES[file_type]
 	if request.method == 'POST':
-		varname = 'new_css'
+		varname = 'new_layoutfile'
 		if varname in request.POST:
 			file_name = request.POST[varname]
-			file_path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
+			file_path = os.path.join(root, file_name)
 			if os.path.exists(file_path):
-				messages.error(request, 'Stylesheet "%s" already exists.' % file_name)
-				return HttpResponseRedirect(reverse('css_list'))
+				messages.error(request, '%s "%s" already exists.' % (type_name, file_name))
+				return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
 
 			os.mknod(file_path)
-			messages.success(request, 'Stylesheet "%s" created successfully.' % file_name)
+			messages.success(request, '%s "%s" created successfully.' % (type_name, file_name))
 			return HttpResponseRedirect(
-				reverse('css_change', kwargs={'file_name': file_name})
+				reverse('layoutfile_change', kwargs={'file_type': file_type, 'file_name': file_name})
 			)
 
-		varname = 'delete_css'
+		varname = 'delete_layoutfile'
 		if varname in request.POST:
-			deleted_count = 0
 			for file_name in request.POST.getlist(varname):
-				file_path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
+				file_path = os.path.join(root, file_name)
 				if os.path.exists(file_path):
 					os.unlink(file_path)
-					deleted_count += 1
+					messages.success(
+						request, '%s "%s" deleted successfully.' % (type_name, file_name)
+					)
 
-			if deleted_count:
-				messages.success(request, '%d stylesheet deleted successfully.' % deleted_count)
-			return HttpResponseRedirect(reverse('css_list'))
+			return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
 
 	files = []
-	for f in sorted(os.listdir(CSS_ROOT)):
-		name = f[:-len(CSS_EXTENSION)]
-		path = os.path.join(CSS_ROOT, f)
+	for name in sorted(os.listdir(root)):
+		path = os.path.join(root, name)
 		if os.path.isfile(path):
 			obj = {
 				'name': name,
@@ -64,46 +70,56 @@ def css_list(request):
 	context = dict(
 		# Include common variables for rendering the admin template.
 		admin_site.each_context(request),
-		title='Stylesheets',
+		title=type_name + 's',
 		files=files,
+		file_type=file_type,
+		file_type_name=type_name,
+		file_type_name_plural=type_name + 's',
 	)
-	return render(request, 'layout/css_list.html', context)
+	return render(request, 'layout/layoutfile_list.html', context)
 
 
 @staff_member_required
 @permission_required('layout.admin')
-def css_add(request):
+def layoutfile_add(request, file_type):
 	if request.method == 'POST':
-		return css_change(request, request.POST['file_name'])
+		return layoutfile_change(request, file_type, request.POST['file_name'])
 
-	return render(request, 'layout/css_change.html', dict(
+	type_name = TYPE_NAMES[file_type]
+
+	return render(request, 'layout/layoutfile_change.html', dict(
 		admin_site.each_context(request),
-		title='Add stylesheet',
+		title='Add %s' % type_name.lower(),
+		file_type=file_type,
+		file_type_name_plural=type_name + 's',
 	))
 
 
 @staff_member_required
 @permission_required('layout.admin')
-def css_change(request, file_name):
-	path = os.path.join(CSS_ROOT, file_name + CSS_EXTENSION)
+def layoutfile_change(request, file_type, file_name):
+	path = os.path.join(ROOTS[file_type], file_name)
+	type_name = TYPE_NAMES[file_type]
 	if request.method == 'POST':
 		with open(path, 'w') as f:
 			f.write(request.POST['file_content'])
-		messages.success(request, 'Changes to stylesheet "%s" saved.' % file_name)
+		messages.success(request, 'Changes to %s "%s" saved.' % (type_name, file_name))
 		if request.POST.get('_continue'):
 			return HttpResponseRedirect(
-				reverse('css_change', kwargs={'file_name': file_name})
+				reverse('layoutfile_change', kwargs={'file_type': file_type, 'file_name': file_name})
 			)
-		return HttpResponseRedirect(reverse('css_list'))
+		return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
 
 	with open(path, 'r') as f:
 		file_content = f.read()
 
-	return render(request, 'layout/css_change.html', dict(
+	return render(request, 'layout/layoutfile_change.html', dict(
 		admin_site.each_context(request),
-		title='Change stylesheet',
+		title='Edit %s %s' % (type_name.lower(), file_name),
+		file_type=file_type,
 		file_name=file_name,
 		file_content=file_content,
+		file_type_name_plural=type_name + 's',
 	))
 
 

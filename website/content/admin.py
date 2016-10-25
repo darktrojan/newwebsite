@@ -7,7 +7,7 @@ from mptt.admin import DraggableMPTTAdmin
 from reversion.admin import VersionAdmin
 
 from content.models import BlogEntry, MenuEntry, Page
-from layout.models import Template
+from layout.models import get_templates
 from website.admin import admin_site
 
 
@@ -33,16 +33,14 @@ class PageAdmin(VersionAdmin):
 
 	def changelist_view(self, request, extra_context=None):
 		extra_context = extra_context or {}
-		extra_context['templates'] = dict()
-		for t in Template.objects.all():
-			extra_context['templates'][t.pk] = t.name
+		extra_context['template_names'] = get_templates()
 		return super(PageAdmin, self).changelist_view(request, extra_context)
 
 	def change_template(self, request, queryset):
 		new_template = request.POST.get('action-template')
 		updated = queryset.update(template=new_template)
 		messages.success(request, '%d %s changed to %s' %
-			(updated, ngettext('page', 'pages', updated), Template.objects.get(pk=new_template).name)
+			(updated, ngettext('page', 'pages', updated), new_template)
 		)
 	change_template.short_description = u'Change template to\u2026'
 	make_published.short_description = 'Mark selected pages as published'

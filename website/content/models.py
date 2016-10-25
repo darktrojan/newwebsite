@@ -7,6 +7,8 @@ from django.utils import timezone
 from mptt.models import MPTTModel, TreeForeignKey
 import reversion
 
+from layout.models import TemplateField
+
 PUBLISH_STATUS_CHOICES = (
 	('P', 'Published'),
 	('D', 'Draft'),
@@ -18,7 +20,7 @@ PUBLISH_STATUS_CHOICES = (
 class Page(models.Model):
 	url = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
-	template = models.ForeignKey('layout.Template')
+	template = TemplateField()
 	content = models.TextField()
 	modified = models.DateTimeField(auto_now=True)
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)

@@ -1,11 +1,10 @@
 from content.models import BlogEntry, Page
-from layout.models import Template as LayoutTemplate
 from website import settings
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404
-from django.template import RequestContext, Template, loader
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render
+from django.template import loader
 from django.utils.safestring import mark_safe
 
 from reversion.models import Version
@@ -26,12 +25,10 @@ def page(request):
 		except Version.DoesNotExist:
 			pass
 
-	template = Template(page.template.content)
-	context = RequestContext(request, {
+	return render(request, page.template, {
 		'title': page.title,
 		'content': mark_safe(page.content)
 	})
-	return HttpResponse(template.render(context))
 
 
 def blog_list(request, year=None, date=None, tag=None):
@@ -61,15 +58,12 @@ def blog_list(request, year=None, date=None, tag=None):
 		# If page is out of range (e.g. 9999), deliver last page of results.
 		entries = paginator.page(paginator.num_pages)
 
-	template_object = LayoutTemplate.objects.get(name=settings.NEWS_TEMPLATE_NAME)
-	template = Template(template_object.content)
-	context = RequestContext(request, {
+	return render(request, settings.NEWS_TEMPLATE_NAME, {
 		'title': 'News',
 		'content': loader.render_to_string('content/blog_list.html', {
 			'entries': entries,
 		})
 	})
-	return HttpResponse(template.render(context))
 
 
 def blog_entry(request, date, slug):
@@ -80,12 +74,9 @@ def blog_entry(request, date, slug):
 	if not request.user.has_perm('content.add_blogentry') and entry.status != 'P':
 		raise Http404
 
-	template_object = LayoutTemplate.objects.get(name=settings.NEWS_TEMPLATE_NAME)
-	template = Template(template_object.content)
-	context = RequestContext(request, {
+	return render(request, settings.NEWS_TEMPLATE_NAME, {
 		'title': entry.title,
 		'content': loader.render_to_string('content/blog_entry.html', {
 			'entry': entry,
 		})
 	})
-	return HttpResponse(template.render(context))

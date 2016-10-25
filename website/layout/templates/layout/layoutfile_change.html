@@ -7,7 +7,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label='layout' %}">Layout</a>
-&rsaquo; <a href="{% url 'css_list' %}">Stylesheets</a>
+&rsaquo; <a href="{% url 'layoutfile_list' file_type=file_type %}">{{ file_type_name_plural }}</a>
 &rsaquo; {{ file_name }}
 </div>
 {% endblock %}
@@ -22,13 +22,13 @@
 			{% if not file_name %}<div class="form-row field-name">
 				<div>
 					<label class="required" for="file_name">Name:</label>
-					<input class="vTextField" id="file_name" maxlength="32" name="file_name" required type="text">
+					<input class="vTextField" id="file_name" maxlength="32" name="file_name" required type="text" pattern="[-\w]+\.{% if file_type == 'css' %}css{% else %}html{% endif %}">
 				</div>
 			</div>{% endif %}
 			<div class="form-row field-content">
 				<div>
 					<label class="required" for="file_content">Content:</label>
-					<textarea class="vLargeTextField" cols="40" id="file_content" name="file_content" rows="10" required="">{{ file_content }}</textarea>
+					<textarea class="vLargeTextField" cols="40" id="file_content" name="file_content" rows="10">{{ file_content }}</textarea>
 				</div>
 			</div>
 		</fieldset>
@@ -45,7 +45,7 @@
 {{ block.super }}
 <script type="text/javascript">
 document.querySelector('textarea').onkeypress = function(event) {
-	if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+	if (event.keyCode == KeyEvent.DOM_VK_TAB && !event.shiftKey && !event.ctrlKey) {
 		event.preventDefault();
 		var s = this.selectionStart;
 		var e = this.selectionEnd;
