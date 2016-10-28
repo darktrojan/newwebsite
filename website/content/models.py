@@ -29,6 +29,11 @@ class Page(models.Model):
 	def __unicode__(self):
 		return self.url
 
+	def save(self, *args, **kwargs):
+		self.content = self.content.replace('\r', '')
+		self.extra_header_content = self.extra_header_content.replace('\r', '')
+		super(Page, self).save(*args, **kwargs)
+
 
 class MenuEntry(MPTTModel):
 	label = models.CharField(max_length=255)
