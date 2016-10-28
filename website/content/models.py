@@ -21,7 +21,8 @@ class Page(models.Model):
 	url = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
 	template = TemplateField()
-	content = models.TextField()
+	content = models.TextField(blank=True)
+	extra_header_content = models.TextField(blank=True)
 	modified = models.DateTimeField(auto_now=True)
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 

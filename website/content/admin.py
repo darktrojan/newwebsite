@@ -25,7 +25,7 @@ class PageAdmin(VersionAdmin):
 		'fields': (('title', 'url',), 'content',)
 	}), ('Advanced options', {
 		'classes': ('collapse',),
-		'fields': ('template', 'status',),
+		'fields': ('template', 'status', 'extra_header_content',),
 	}),)
 
 	change_list_template = 'admin/content/page/change_list.html'

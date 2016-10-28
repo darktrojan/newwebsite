@@ -51,9 +51,6 @@
 #richarea ul > li {
 	list-style-type: square;
 }
-textarea {
-	display: none;
-}
 #imagearea {
 	display: none;
 	position: fixed;

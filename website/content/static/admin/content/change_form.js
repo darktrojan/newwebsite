@@ -1,6 +1,7 @@
 /* globals Edit */
 var textarea = document.querySelector('textarea');
 textarea.style.marginLeft = '170px';
+textarea.style.display = 'none';
 
 var richarea = document.createElement('div');
 richarea.id = 'richarea';

@@ -5,7 +5,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
-from django.utils.safestring import mark_safe
 
 from reversion.models import Version
 
@@ -27,9 +26,7 @@ def page(request):
 
 	return render(request, page.template, {
 		'site_name': settings.SITE_NAME,
-		'url': page.url,
-		'title': page.title,
-		'content': mark_safe(page.content)
+		'page': page
 	})
 
 
