@@ -230,6 +230,8 @@ def all_images(request):
 			p = os.path.join(path, p)
 			if (os.path.isdir(p)):
 				do_folder(p)
+			elif p[-4:].lower() == '.svg':
+				continue
 			else:
 				thumbnailer = get_thumbnailer(p[len(settings.MEDIA_ROOT):])
 				images.append({

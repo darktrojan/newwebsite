@@ -3,12 +3,27 @@ var textarea = document.querySelector('textarea');
 textarea.style.marginLeft = '170px';
 textarea.style.display = 'none';
 
-var richarea = document.createElement('div');
-richarea.id = 'richarea';
-textarea.parentNode.insertBefore(richarea, textarea);
-new Edit.EditArea(richarea);
-read_input();
+var iframe = document.createElement('iframe');
+iframe.style.width = '100%';
+iframe.style.height = '80vh';
+textarea.parentNode.insertBefore(iframe, textarea);
 
+var richarea;
+iframe.contentWindow.onload = function() {
+	richarea = iframe.contentDocument.body;
+	var link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.href = '/static/admin/content/iframe.css';
+	link.type = 'text/css';
+	iframe.contentDocument.head.appendChild(link);
+	read_input();
+	new Edit.EditArea(richarea);
+};
+if (iframe.contentDocument.readyState == 'complete') { // chrome
+	iframe.contentWindow.onload();
+}
+
+/**
 var imagearea = document.getElementById('imagearea');
 fetch('/admin/all_images', {credentials: 'same-origin'}).then(function(result) {
 	return result.json();
@@ -36,22 +51,29 @@ imagearea.onclick = function(event) {
 };
 var imageform = imagearea.querySelector('form');
 imageform.onsubmit = function() {
-	Edit.Actions.imageAction({
-		src: this.src.value, width: this.width.value, height: this.height.value
-	});
-	imagearea.style.display = null;
-	return false;
+	try {
+		Edit.Actions.imageAction({
+			src: this.src.value, width: this.width.value, height: this.height.value
+		});
+		imagearea.style.display = null;
+	} finally {
+		return false;
+	}
 };
+**/
 
 textarea.form.onsubmit = function() {
 	write_output();
 };
+
+/**
 Edit.linkCallback = function() {
 	return '/media/files/Above_Gotham.jpg';
 };
 Edit.imageCallback = function() {
 	imagearea.style.display = 'block';
 };
+**/
 
 function read_input() {
 	var div = document.createElement('div');
@@ -66,6 +88,11 @@ function read_input() {
 	richarea.classList.remove('edit_placeholder');
 }
 function write_output() {
+	if (richarea.editArea.content._placeholder) {
+		textarea.value = '';
+		return;
+	}
+
 	var content = richarea.editArea.content.cloneNode(true);
 
 	// Sanitise here.

@@ -1,0 +1,53 @@
+@import url('/static/admin/css/fonts.css');
+
+body {
+	font-size: 14px;
+	font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+	color: #333;
+	background: #fff;
+}
+body > :first-child {
+	margin-top: 0;
+}
+body > :last-child {
+	margin-bottom: 0;
+}
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+li {
+	line-height: 1.25;
+	background: transparent;
+	margin: 0.5em 0;
+}
+h1,
+h2,
+h3 {
+	font-weight: bold;
+	color: #383838;
+	padding: 0;
+}
+h1 {
+	font-size: 20px;
+}
+h2 {
+	font-size: 16px;
+}
+h3 {
+	font-size: 14px;
+}
+img {
+	max-width: 100%;
+	height: auto;
+}
+ol,
+ul {
+	padding: 0 0 0 1.5em;
+	list-style-position: outside;
+}
+ul > li {
+	list-style-type: square;
+}
