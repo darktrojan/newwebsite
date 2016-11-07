@@ -5,7 +5,8 @@
 <link rel="stylesheet" type="text/css" href="{% static "admin/content/change_form.css" %}">{% endblock %}
 
 {% block footer %}
-<div id="imagearea">
+<div id="imageareabg"></div>
+<div id="imagearea" class="edit_ui">
 	<form>
 		<img style="max-width: 150px; max-height: 120px;" />
 		<input type="hidden" name="src" />
@@ -17,4 +18,5 @@
 {{ block.super }}
 <script type="text/javascript" src="{% static "pageedit/pageedit.js" %}"></script>
 <script type="text/javascript" src="{% static "admin/content/change_form.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/content/images.js" %}"></script>
 {% endblock %}
