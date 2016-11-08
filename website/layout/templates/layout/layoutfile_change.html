@@ -44,8 +44,8 @@
 {% block footer %}
 {{ block.super }}
 <script type="text/javascript">
-document.querySelector('textarea').onkeypress = function(event) {
-	if (event.keyCode == KeyEvent.DOM_VK_TAB && !event.shiftKey && !event.ctrlKey) {
+document.querySelector('textarea').onkeydown = function(event) {
+	if (event.keyCode == 9 && !event.shiftKey && !event.ctrlKey) { // KeyEvent.DOM_VK_TAB
 		event.preventDefault();
 		var s = this.selectionStart;
 		var e = this.selectionEnd;
