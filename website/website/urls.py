@@ -25,7 +25,9 @@ urlpatterns = [
 		r'^admin/(?P<template>files|images)/(?P<path>[-\w/ ]+)?$',
 		admin_site.admin_view(layout.views.file_browser), name='file_browser'
 	),
+	url(r'^admin/all_pages$', content.views.all_pages),
 	url(r'^admin/all_images$', layout.views.all_images),
+	url(r'^admin/get_thumbnail$', layout.views.get_thumbnail),
 	url(r'^admin/', admin_site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

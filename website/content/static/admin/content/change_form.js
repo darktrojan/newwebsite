@@ -36,10 +36,6 @@ textarea.form.onsubmit = function() {
 	}
 };
 
-Edit.linkCallback = function() {
-	return '/media/files/Above_Gotham.jpg';
-};
-
 function read_input() {
 	var div = document.createElement('div');
 	div.innerHTML = textarea.value;

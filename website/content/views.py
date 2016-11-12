@@ -1,8 +1,9 @@
 from content.models import BlogEntry, Page
 from website import settings
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 
@@ -81,3 +82,17 @@ def blog_entry(request, date, slug):
 			'entry': entry,
 		})
 	})
+
+
+@staff_member_required
+def all_pages(request):
+	pages = list()
+
+	for p in Page.objects.all().order_by('url'):
+		pages.append({
+			'url': p.url,
+			'title': p.title,
+			'status': p.status
+		})
+
+	return JsonResponse(pages, safe=False)

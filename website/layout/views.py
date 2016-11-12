@@ -231,16 +231,27 @@ def all_images(request):
 			if (os.path.isdir(p)):
 				do_folder(p)
 			elif p[-4:].lower() == '.svg':
+				images.append({
+					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
+					'thumb': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):])
+				})
 				continue
 			else:
 				thumbnailer = get_thumbnailer(p[len(settings.MEDIA_ROOT):])
-				images.append({
-					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
-					'thumb': os.path.join(
-						settings.MEDIA_URL, thumbnailer.get_thumbnail(aliases.get('smallthumb')).name
-					),
-				})
+				existing = thumbnailer.get_existing_thumbnail(aliases.get('smallthumb'))
+				d = {
+					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):])
+				}
+				if existing is not None:
+					d['thumb'] = os.path.join(settings.MEDIA_URL, existing.name)
+				images.append(d)
 
 	do_folder(os.path.join(settings.MEDIA_ROOT, 'images'))
 
-	return JsonResponse(images, safe=False)
+	return JsonResponse(sorted(images, key=lambda x: x['url'].lower()), safe=False)
+
+
+def get_thumbnail(request):
+	t = get_thumbnailer(request.GET['f'])
+	g = t.get_thumbnail(aliases.get('smallthumb'))
+	return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, g.name))
