@@ -36,16 +36,23 @@
 #imagearea div.image {
 	display: inline-block;
 	width: 120px;
-	margin: 5px;
+	padding: 5px;
+	border-radius: 2px;
 	text-align: center;
 	line-height: 0;
 	vertical-align: middle;
+	cursor: pointer;
+}
+#imagearea div.image.selected {
+	background-color: highlight;
+	color: highlighttext;
 }
 #imagearea div.image img {
 	max-width: 120px;
 	max-height: 96px;
 }
-#imagearea form {
+#imagearea form,
+#linkarea form {
 	width: 190px;
 	margin-inline-start: 15px;
 	font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
@@ -59,7 +66,8 @@
 	text-align: right;
 	box-sizing: border-box;
 }
-#imagearea input {
+#imagearea input,
+#linkarea input {
 	margin: 0;
 	vertical-align: middle;
 	font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
@@ -70,7 +78,8 @@
 	padding: 5px 6px;
 	text-align: center;
 }
-#imagearea button {
+#imagearea button,
+#linkarea button {
 	font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
 	font-weight: normal;
 	font-size: 13px;
@@ -91,7 +100,7 @@
 	top: 50px;
 	left: 50%;
 	transform: translate(-50%);
-	width: 810px;
+	width: 410px;
 	padding: 15px;
 	box-sizing: border-box;
 	background-color: #fff;
@@ -99,4 +108,18 @@
 	z-index: 100;
 	max-height: calc(100% - 100px);
 	overflow: auto;
+}
+#linkarea option.link::after {
+    content: ' ' attr(value);
+    opacity: 0.5;
+}
+#linkarea form {
+	margin-inline-start: 0;
+	margin-block-start: 1em;
+}
+select[size] {
+	padding: 0;
+}
+select[size] option {
+	padding: 2px 5px;
 }
