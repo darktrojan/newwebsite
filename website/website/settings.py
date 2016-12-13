@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'website',
     'easy_thumbnails',
     'mptt',
-    'reversion',
 ]
 
 MIDDLEWARE = [

@@ -7,23 +7,12 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 
-from reversion.models import Version
-
 
 def page(request):
 	page = get_object_or_404(Page, url=request.path)
 
 	if not request.user.has_perm('content.add_page') and page.status != 'P':
 		raise Http404
-
-	if 'revision' in request.GET:
-		try:
-			version = Version.objects.get_for_object(page).get(id=request.GET['revision'])
-			page.template = version.field_dict.get('template')
-			page.title = version.field_dict.get('title')
-			page.content = version.field_dict.get('content')
-		except Version.DoesNotExist:
-			pass
 
 	return render(request, page.template, {
 		'site_name': settings.SITE_NAME,

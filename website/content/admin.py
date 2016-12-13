@@ -1,10 +1,10 @@
 from django.contrib import messages
+from django.contrib.admin import ModelAdmin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from mptt.admin import DraggableMPTTAdmin
-from reversion.admin import VersionAdmin
 
 from content.models import BlogEntry, MenuEntry, Page
 from layout.models import get_templates
@@ -15,7 +15,7 @@ def make_published(modeladmin, request, queryset):
 	queryset.update(status='P')
 
 
-class PageAdmin(VersionAdmin):
+class PageAdmin(ModelAdmin):
 	list_display = ('url', 'title', 'status', 'modified', 'template', 'view_on_site_inline',)
 	list_filter = ('status', 'template',)
 	actions = ('change_template', make_published,)
@@ -66,7 +66,7 @@ class MenuEntryAdmin(DraggableMPTTAdmin):
 	indented_title.short_description = 'Title'
 
 
-class BlogEntryAdmin(VersionAdmin):
+class BlogEntryAdmin(ModelAdmin):
 	list_display = ('title', 'status', 'modified', 'view_on_site_inline',)
 	list_filter = ('status',)
 	actions = (make_published,)

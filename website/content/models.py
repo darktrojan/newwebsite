@@ -5,7 +5,6 @@ from django.db import models
 from django.utils import timezone
 
 from mptt.models import MPTTModel, TreeForeignKey
-import reversion
 
 from layout.models import TemplateField
 
@@ -16,7 +15,6 @@ PUBLISH_STATUS_CHOICES = (
 )
 
 
-@reversion.register()
 class Page(models.Model):
 	url = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
@@ -35,6 +33,17 @@ class Page(models.Model):
 		super(Page, self).save(*args, **kwargs)
 
 
+class PageHistory(models.Model):
+	page = models.ForeignKey('Page')
+	title = models.CharField(max_length=255)
+	content = models.TextField(blank=True)
+	extra_header_content = models.TextField(blank=True)
+	modified = models.DateTimeField(editable=False, auto_now=True)
+
+	def __unicode__(self):
+		return '%s @ %s' % (self.page, self.modified)
+
+
 class MenuEntry(MPTTModel):
 	label = models.CharField(max_length=255)
 	href = models.CharField(max_length=255, blank=True, verbose_name='Links to')
@@ -47,7 +56,6 @@ class MenuEntry(MPTTModel):
 		verbose_name_plural = 'menu entries'
 
 
-@reversion.register()
 class BlogEntry(models.Model):
 	created = models.DateTimeField(default=timezone.now)
 	modified = models.DateTimeField(auto_now=True)
@@ -74,3 +82,13 @@ class BlogEntry(models.Model):
 
 	class Meta:
 		verbose_name_plural = 'blog entries'
+
+
+class BlogEntryHistory(models.Model):
+	entry = models.ForeignKey('BlogEntry')
+	title = models.CharField(max_length=255)
+	content = models.TextField(blank=True)
+	modified = models.DateTimeField(editable=False, auto_now=True)
+
+	def __unicode__(self):
+		return '%s @ %s' % (self.entry, self.modified)
