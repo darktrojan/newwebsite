@@ -94,6 +94,8 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
+AUTH_USER_MODEL = 'auth.User'
+
 LOGIN_URL = '/admin/login/'
 
 

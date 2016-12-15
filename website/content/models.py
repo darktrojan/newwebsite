@@ -8,6 +8,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from layout.models import TemplateField
 
+from website import settings
+
 PUBLISH_STATUS_CHOICES = (
 	('P', 'Published'),
 	('D', 'Draft'),
@@ -22,6 +24,7 @@ class Page(models.Model):
 	content = models.TextField(blank=True)
 	extra_header_content = models.TextField(blank=True)
 	modified = models.DateTimeField(auto_now=True)
+	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
 	def __unicode__(self):
@@ -38,7 +41,8 @@ class PageHistory(models.Model):
 	title = models.CharField(max_length=255)
 	content = models.TextField(blank=True)
 	extra_header_content = models.TextField(blank=True)
-	modified = models.DateTimeField(editable=False, auto_now=True)
+	modified = models.DateTimeField(editable=False, auto_now_add=True)
+	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 
 	def __unicode__(self):
 		return '%s @ %s' % (self.page, self.modified)
@@ -59,6 +63,7 @@ class MenuEntry(MPTTModel):
 class BlogEntry(models.Model):
 	created = models.DateTimeField(default=timezone.now)
 	modified = models.DateTimeField(auto_now=True)
+	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 	slug = models.SlugField(max_length=255)
 	title = models.CharField(max_length=255, blank=False)
 	content = models.TextField()
@@ -88,7 +93,8 @@ class BlogEntryHistory(models.Model):
 	entry = models.ForeignKey('BlogEntry')
 	title = models.CharField(max_length=255)
 	content = models.TextField(blank=True)
-	modified = models.DateTimeField(editable=False, auto_now=True)
+	modified = models.DateTimeField(editable=False, auto_now_add=True)
+	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 
 	def __unicode__(self):
 		return '%s @ %s' % (self.entry, self.modified)

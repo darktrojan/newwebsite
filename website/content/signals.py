@@ -10,7 +10,8 @@ def page_history_saver(sender, **kwargs):
 		page=instance,
 		title=instance.title,
 		content=instance.content,
-		extra_header_content=instance.extra_header_content
+		extra_header_content=instance.extra_header_content,
+		modifier=instance.modifier
 	)
 	version.save()
 
@@ -21,6 +22,7 @@ def blog_entry_history_saver(sender, **kwargs):
 	version = BlogEntryHistory(
 		page=instance,
 		title=instance.title,
-		content=instance.content
+		content=instance.content,
+		modifier=instance.modifier
 	)
 	version.save()

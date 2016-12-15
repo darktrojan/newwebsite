@@ -1,4 +1,4 @@
-from content.models import BlogEntry, Page
+from content.models import BlogEntry, Page, PageHistory
 from website import settings
 
 from django.contrib.admin.views.decorators import staff_member_required
@@ -14,10 +14,21 @@ def page(request):
 	if not request.user.has_perm('content.add_page') and page.status != 'P':
 		raise Http404
 
-	return render(request, page.template, {
+	context = {
 		'site_name': settings.SITE_NAME,
 		'page': page
-	})
+	}
+
+	if 'revision' in request.GET:
+		try:
+			version = page.pagehistory_set.get(pk=request.GET['revision'])
+			page.title = version.title
+			page.content = version.content
+			page.extra_header_content = version.extra_header_content
+		except PageHistory.DoesNotExist:
+			raise Http404
+
+	return render(request, page.template, context)
 
 
 def blog_list(request, year=None, date=None, tag=None):

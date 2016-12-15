@@ -1,0 +1,38 @@
+{% extends "admin/object_history.html" %}
+
+{% block content %}
+<ul>
+<style type="text/css">
+table {
+	width: 100%;
+}
+td:nth-of-type(3n+1),
+td:nth-of-type(3n+2) {
+	display: none;
+}
+td:nth-of-type(3n) {
+	width: 50%;
+}
+.diff_add, .diff_sub, .diff_chg {
+	padding-inline-start: 2px;
+	padding-inline-end: 2px;
+	border-radius: 2px;
+}
+.diff_add {
+	background-color: #9f9;
+}
+.diff_sub {
+	background-color: #f99;
+}
+.diff_chg {
+	background-color: #ff8;
+}
+</style>
+{% for ph in history %}
+<div>
+	<h3><a href="?revision={{ ph.pk }}">{{ ph.modified }} by {{ ph.modifier }}</a></h3>
+	{{ ph.diff | safe }}
+</div>
+{% endfor %}
+</ul>
+{% endblock %}
