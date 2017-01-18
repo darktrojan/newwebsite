@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.utils.translation import ngettext
 
 from mptt.admin import DraggableMPTTAdmin
@@ -61,6 +62,7 @@ class PageAdmin(ModelAdmin):
 	view_on_site_inline.short_description = 'View on site'
 
 	def save_model(self, request, obj, form, change):
+		obj.modified = now()
 		obj.modifier = request.user
 		super(PageAdmin, self).save_model(request, obj, form, change)
 

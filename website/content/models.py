@@ -23,7 +23,7 @@ class Page(models.Model):
 	template = TemplateField()
 	content = models.TextField(blank=True)
 	extra_header_content = models.TextField(blank=True)
-	modified = models.DateTimeField(auto_now=True)
+	modified = models.DateTimeField()
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
