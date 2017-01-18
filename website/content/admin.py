@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.text import capfirst
 from django.utils.timezone import now
 from django.utils.translation import ngettext
 
@@ -23,8 +24,13 @@ def make_published(modeladmin, request, queryset):
 	queryset.update(status='P')
 
 
+def view_on_site_inline(obj):
+	return mark_safe('<a href="%s">View on site</a>' % obj.url)
+view_on_site_inline.short_description = 'View on site'
+
+
 class PageAdmin(ModelAdmin):
-	list_display = ('url', 'title', 'status', 'modified', 'template', 'view_on_site_inline',)
+	list_display = ('url', 'title', 'status', 'modified', 'template', view_on_site_inline,)
 	list_filter = ('status', 'template',)
 	actions = ('change_template', make_published,)
 	ordering = ('url',)
@@ -56,11 +62,6 @@ class PageAdmin(ModelAdmin):
 	def view_on_site(self, obj):
 		return obj.url
 
-	def view_on_site_inline(self, obj):
-		return mark_safe('<a href="%s" class="viewsitelink">View on site</a>' % obj.url)
-	view_on_site_inline.allow_tags = True
-	view_on_site_inline.short_description = 'View on site'
-
 	def save_model(self, request, obj, form, change):
 		obj.modified = now()
 		obj.modifier = request.user
@@ -85,6 +86,7 @@ class PageAdmin(ModelAdmin):
 			title='Change history: ' + str(obj),
 			object=obj,
 			opts=opts,
+			module_name=capfirst(force_text(opts.verbose_name_plural)),
 			preserved_filters=self.get_preserved_filters(request),
 		)
 
@@ -144,7 +146,7 @@ class MenuEntryAdmin(DraggableMPTTAdmin):
 
 
 class BlogEntryAdmin(ModelAdmin):
-	list_display = ('title', 'status', 'modified', 'view_on_site_inline',)
+	list_display = ('title', 'status', 'modified', view_on_site_inline,)
 	list_filter = ('status',)
 	actions = (make_published,)
 	ordering = ('-created',)
@@ -155,11 +157,6 @@ class BlogEntryAdmin(ModelAdmin):
 
 	def view_on_site(self, obj):
 		return obj.get_absolute_url()
-
-	def view_on_site_inline(self, obj):
-		return mark_safe('<a href="%s" class="viewsitelink">View on site</a>' % obj.get_absolute_url())
-	view_on_site_inline.allow_tags = True
-	view_on_site_inline.short_description = 'View on site'
 
 	def save_model(self, request, obj, form, change):
 		obj.modifier = request.user
