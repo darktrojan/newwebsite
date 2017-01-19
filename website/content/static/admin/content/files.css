@@ -1,8 +1,6 @@
 .folder-icon {
 	background: url(icon-folder.svg) 0 0 no-repeat;
 	top: -1px;
-}
-.folder-icon {
 	position: relative;
 	display: inline-block;
 	vertical-align: middle;

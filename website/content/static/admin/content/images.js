@@ -5,40 +5,90 @@ imageareabg.onclick = function() {
 	linkarea.style.display = null;
 };
 var imagearea = document.getElementById('imagearea');
+var inner = imagearea.querySelector('div');
 fetch('/admin/content/all_images', {credentials: 'same-origin'}).then(function(result) {
 	return result.json();
 }).then(function(json) {
-	var inner = imagearea.querySelector('div');
-	for (var i of json) {
-		var div = document.createElement('div');
-		div.classList.add('image');
-		div.dataset.src = i.url;
-		div.title = i.url.substring(i.url.lastIndexOf('/') + 1);
-		var img = document.createElement('img');
-		if (i.thumb) {
-			img.src = i.thumb;
-		} else {
-			img.onload = load_next_thumb;
+	function show_folder(folder, parent) {
+		var folderinner = document.createElement('div');
+		folderinner.classList.add('folderinner');
+		folderinner.dataset.dirname = folder.path;
+		inner.appendChild(folderinner);
+
+		if (parent) {
+			var div = document.createElement('div');
+			var a = document.createElement('a');
+			a.href = '#';
+			a.classList.add('folder');
+			a.dataset.path = parent.path;
+			a.textContent = ' Parent folder';
+			var span = document.createElement('span');
+			span.classList.add('folder-icon');
+			a.insertBefore(span, a.firstChild);
+			div.appendChild(a);
+			folderinner.appendChild(div);
+			folderinner.setAttribute('hidden', '');
 		}
-		div.appendChild(img);
-		inner.appendChild(div);
+		for (var f of folder.folders) {
+			var div = document.createElement('div');
+			var a = document.createElement('a');
+			a.href = '#';
+			a.classList.add('folder');
+			a.dataset.path = f.path;
+			a.textContent = ' ' + f.path.substring(f.path.lastIndexOf('/') + 1);
+			var span = document.createElement('span');
+			span.classList.add('folder-icon');
+			a.insertBefore(span, a.firstChild);
+			div.appendChild(a);
+			folderinner.appendChild(div);
+		}
+		for (var i of folder.images) {
+			var div = document.createElement('div');
+			div.classList.add('image');
+			div.dataset.src = i.url;
+			div.dataset.dirname = i.url.substring(14, i.url.lastIndexOf('/'));
+			div.title = i.url.substring(i.url.lastIndexOf('/') + 1);
+			var img = document.createElement('img');
+			if (i.thumb) {
+				img.src = i.thumb;
+			} else {
+				img.onload = load_next_thumb;
+			}
+			div.appendChild(img);
+			folderinner.appendChild(div);
+		}
+		for (var f of folder.folders) {
+			show_folder(f, folder);
+		}
 	}
 
+	show_folder(json);
 	load_next_thumb();
-	function load_next_thumb() {
-		var next = inner.querySelector('img:not([src])');
-		if (next) {
-			var name = next.parentNode.dataset.src.substring(7); // length of '/media/'
-			next.src = '/admin/content/get_thumbnail?f=' + encodeURIComponent(name);
-		}
-	}
 });
+function load_next_thumb() {
+	var next = inner.querySelector('div.folderinner:not([hidden]) img:not([src])');
+	if (next) {
+		var name = next.parentNode.dataset.src.substring(7); // length of '/media/'
+		next.src = '/admin/content/get_thumbnail?f=' + encodeURIComponent(name);
+	}
+}
 imagearea.onclick = function(event) {
 	var target = event.target;
 	if (target instanceof HTMLImageElement) {
 		target = target.parentNode;
 	}
-	if (target instanceof HTMLDivElement && target.classList.contains('image')) {
+	if (target instanceof HTMLAnchorElement && target.classList.contains('folder')) {
+		var folders = imagearea.querySelectorAll('div.folderinner');
+		for (var i of folders) {
+			if (i.dataset.dirname == target.dataset.path) {
+				i.removeAttribute('hidden');
+			} else {
+				i.setAttribute('hidden', '');
+			}
+		}
+		load_next_thumb();
+		return false;
+	} else if (target instanceof HTMLDivElement && target.classList.contains('image')) {
 		var selected = imagearea.querySelector('div.image.selected');
 		if (selected) {
 			selected.classList.remove('selected');

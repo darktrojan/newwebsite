@@ -123,3 +123,20 @@ select[size] {
 select[size] option {
 	padding: 2px 5px;
 }
+
+.folder-icon {
+	background: url(icon-folder.svg) 0 0 no-repeat;
+	top: -1px;
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	height: 16px;
+	width: 16px;
+	overflow: hidden;
+}
+.folder {
+	text-decoration: none;
+}
+.folder:hover > .folder-icon {
+	background-position: 0 -16px;
+}

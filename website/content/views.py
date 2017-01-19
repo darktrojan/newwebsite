@@ -233,18 +233,20 @@ def file_browser(request, template, path=None):
 		dirs=dirs,
 		files=files,
 	)
-	return render(request, 'layout/' + template + '.html', context)
+	return render(request, 'content/' + template + '.html', context)
 
 
 @staff_member_required
 def all_images(request):
-	images = list()
+	root = os.path.join(settings.MEDIA_ROOT, 'images')
 
 	def do_folder(path):
+		images = list()
+		folders = list()
 		for p in os.listdir(path):
 			p = os.path.join(path, p)
 			if (os.path.isdir(p)):
-				do_folder(p)
+				folders.append(do_folder(p))
 			elif p[-4:].lower() == '.svg':
 				images.append({
 					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
@@ -261,12 +263,17 @@ def all_images(request):
 					d['thumb'] = os.path.join(settings.MEDIA_URL, existing.name)
 				images.append(d)
 
-	do_folder(os.path.join(settings.MEDIA_ROOT, 'images'))
+		return {
+			'path': path[len(root) + 1:],
+			'images': sorted(images, key=lambda x: x['url'].lower()),
+			'folders': sorted(folders, key=lambda x: x['path'].lower())
+		}
 
-	return JsonResponse(sorted(images, key=lambda x: x['url'].lower()), safe=False)
+	return JsonResponse(do_folder(root), safe=False)
 
 
 def get_thumbnail(request):
 	t = get_thumbnailer(request.GET['f'])
-	g = t.get_thumbnail(aliases.get('smallthumb'))
+	s = request.GET.get('s', 'smallthumb')
+	g = t.get_thumbnail(aliases.get(s))
 	return HttpResponseRedirect(os.path.join(settings.MEDIA_URL, g.name))
