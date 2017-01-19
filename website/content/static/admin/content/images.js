@@ -5,7 +5,7 @@ imageareabg.onclick = function() {
 	linkarea.style.display = null;
 };
 var imagearea = document.getElementById('imagearea');
-fetch('/admin/all_images', {credentials: 'same-origin'}).then(function(result) {
+fetch('/admin/content/all_images', {credentials: 'same-origin'}).then(function(result) {
 	return result.json();
 }).then(function(json) {
 	var inner = imagearea.querySelector('div');
@@ -29,7 +29,7 @@ fetch('/admin/all_images', {credentials: 'same-origin'}).then(function(result) {
 		var next = inner.querySelector('img:not([src])');
 		if (next) {
 			var name = next.parentNode.dataset.src.substring(7); // length of '/media/'
-			next.src = '/admin/get_thumbnail?f=' + encodeURIComponent(name);
+			next.src = '/admin/content/get_thumbnail?f=' + encodeURIComponent(name);
 		}
 	}
 });
@@ -90,7 +90,7 @@ Edit.imageCallback = function() {
 };
 
 var linkarea = document.getElementById('linkarea');
-fetch('/admin/all_pages', {credentials: 'same-origin'}).then(function(result) {
+fetch('/admin/content/all_pages', {credentials: 'same-origin'}).then(function(result) {
 	return result.json();
 }).then(function(json) {
 	var list = linkarea.querySelector('select');

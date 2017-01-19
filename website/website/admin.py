@@ -72,11 +72,11 @@ class MyAdminSite(AdminSite):
 			),
 			url(
 				r'^content/(?P<template>files|images)/(?P<path>[-\w/ ]+)?$',
-				self.admin_view(layout.views.file_browser), name='file_browser'
+				self.admin_view(content.views.file_browser), name='file_browser'
 			),
-			url(r'^all_pages$', content.views.all_pages),
-			url(r'^all_images$', layout.views.all_images),
-			url(r'^get_thumbnail$', layout.views.get_thumbnail),
+			url(r'^content/all_pages$', content.views.all_pages),
+			url(r'^content/all_images$', content.views.all_images),
+			url(r'^content/get_thumbnail$', content.views.get_thumbnail),
 		]
 		return my_urls + urls
 
