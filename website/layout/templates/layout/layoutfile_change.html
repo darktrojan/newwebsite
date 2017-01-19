@@ -7,7 +7,7 @@
 <div class="breadcrumbs">
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 &rsaquo; <a href="{% url 'admin:app_list' app_label='layout' %}">Layout</a>
-&rsaquo; <a href="{% url 'layoutfile_list' file_type=file_type %}">{{ file_type_name_plural }}</a>
+&rsaquo; <a href="{% url 'admin:layoutfile_list' file_type=file_type %}">{{ file_type_name_plural }}</a>
 &rsaquo; {{ file_name }}
 </div>
 {% endblock %}

@@ -13,8 +13,6 @@ from django.utils.translation import ngettext
 from easy_thumbnails.alias import aliases
 from easy_thumbnails.files import get_thumbnailer
 
-from website.admin import admin_site
-
 ROOTS = {
 	'css': os.path.join(settings.MEDIA_ROOT, 'css'),
 	'template': os.path.join(settings.MEDIA_ROOT, 'templates')
@@ -41,6 +39,7 @@ def layoutfile_list(request, file_type):
 				'size': os.path.getsize(path)
 			}
 			files.append(obj)
+	from website.admin import admin_site
 	context = dict(
 		# Include common variables for rendering the admin template.
 		admin_site.each_context(request),
@@ -61,6 +60,7 @@ def layoutfile_add(request, file_type):
 
 	type_name = TYPE_NAMES[file_type]
 
+	from website.admin import admin_site
 	return render(request, 'layout/layoutfile_change.html', dict(
 		admin_site.each_context(request),
 		title='Add %s' % type_name.lower(),
@@ -80,13 +80,14 @@ def layoutfile_change(request, file_type, file_name):
 		messages.success(request, 'Changes to %s "%s" saved.' % (type_name, file_name))
 		if request.POST.get('_continue'):
 			return HttpResponseRedirect(
-				reverse('layoutfile_change', kwargs={'file_type': file_type, 'file_name': file_name})
+				reverse('admin:layoutfile_change', kwargs={'file_type': file_type, 'file_name': file_name})
 			)
-		return HttpResponseRedirect(reverse('layoutfile_list', kwargs={'file_type': file_type}))
+		return HttpResponseRedirect(reverse('admin:layoutfile_list', kwargs={'file_type': file_type}))
 
 	with open(path, 'r') as f:
 		file_content = f.read()
 
+	from website.admin import admin_site
 	return render(request, 'layout/layoutfile_change.html', dict(
 		admin_site.each_context(request),
 		title='Edit %s %s' % (type_name.lower(), file_name),
@@ -135,7 +136,7 @@ def file_browser(request, template, path=None):
 						kwargs['path'] = new_folder_name
 					else:
 						kwargs['path'] = os.path.join(path, new_folder_name)
-					return HttpResponseRedirect(reverse('file_browser', kwargs=kwargs))
+					return HttpResponseRedirect(reverse('admin:file_browser', kwargs=kwargs))
 				else:
 					pass  # TODO
 		elif request.POST.get('action') == 'delete_selected':
@@ -171,7 +172,7 @@ def file_browser(request, template, path=None):
 
 		if path is not None:
 			kwargs['path'] = path
-		return HttpResponseRedirect(reverse('file_browser', kwargs=kwargs))
+		return HttpResponseRedirect(reverse('admin:file_browser', kwargs=kwargs))
 
 	dirs = []
 	files = []
@@ -179,7 +180,7 @@ def file_browser(request, template, path=None):
 	if path is not None:
 		dirs.append({
 			'name': 'Parent folder',
-			'url': reverse('file_browser', kwargs={'template': template, 'path': os.path.dirname(path)}),
+			'url': reverse('admin:file_browser', kwargs={'template': template, 'path': os.path.dirname(path)}),
 			'path': os.path.dirname(path),
 		})
 		parents.append(os.path.basename(path))
@@ -194,7 +195,7 @@ def file_browser(request, template, path=None):
 		if os.path.isdir(f_path):
 			dirs.append({
 				'name': f,
-				'url': reverse('file_browser', kwargs={
+				'url': reverse('admin:file_browser', kwargs={
 					'template': template,
 					'path': f_path[len(settings.MEDIA_ROOT) + len(template) + 1:]
 				}),
@@ -208,6 +209,7 @@ def file_browser(request, template, path=None):
 				'size': os.path.getsize(f_path),
 			})
 
+	from website.admin import admin_site
 	context = dict(
 		# Include common variables for rendering the admin template.
 		admin_site.each_context(request),

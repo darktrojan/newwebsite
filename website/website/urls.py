@@ -1,5 +1,4 @@
 import content.views
-import layout.views
 
 from django.conf import settings
 from django.conf.urls import url
@@ -9,25 +8,6 @@ from django.conf.urls.static import static
 from website.admin import admin_site
 
 urlpatterns = [
-	url(
-		r'^admin/layout/(?P<file_type>css|template)/$',
-		admin_site.admin_view(layout.views.layoutfile_list), name='layoutfile_list'
-	),
-	url(
-		r'^admin/layout/(?P<file_type>css|template)/add/$',
-		admin_site.admin_view(layout.views.layoutfile_add), name='layoutfile_add'
-	),
-	url(
-		r'^admin/layout/(?P<file_type>css|template)/(?P<file_name>[-\w]+\.(css|html))/change/$',
-		admin_site.admin_view(layout.views.layoutfile_change), name='layoutfile_change'
-	),
-	url(
-		r'^admin/(?P<template>files|images)/(?P<path>[-\w/ ]+)?$',
-		admin_site.admin_view(layout.views.file_browser), name='file_browser'
-	),
-	url(r'^admin/all_pages$', content.views.all_pages),
-	url(r'^admin/all_images$', layout.views.all_images),
-	url(r'^admin/get_thumbnail$', layout.views.get_thumbnail),
 	url(r'^admin/', admin_site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

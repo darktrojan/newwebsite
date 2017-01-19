@@ -1,5 +1,8 @@
+from django.conf.urls import url
 from django.contrib.admin import AdminSite, site
 from django.core.urlresolvers import reverse
+
+import content.views, layout.views
 
 
 class MyAdminSite(AdminSite):
@@ -17,12 +20,12 @@ class MyAdminSite(AdminSite):
 			files_model = {
 				'name': 'Files',
 				'object_name': 'files',
-				'admin_url': reverse('file_browser', kwargs={'template': 'files'}),
+				'admin_url': reverse('admin:file_browser', kwargs={'template': 'files'}),
 			}
 			images_model = {
 				'name': 'Images',
 				'object_name': 'images',
-				'admin_url': reverse('file_browser', kwargs={'template': 'images'}),
+				'admin_url': reverse('admin:file_browser', kwargs={'template': 'images'}),
 			}
 
 			if label == 'content':
@@ -36,14 +39,14 @@ class MyAdminSite(AdminSite):
 			css_model = {
 				'name': 'Stylesheets',
 				'object_name': 'css',
-				'admin_url': reverse('layoutfile_list', kwargs={'file_type': 'css'}),
-				'add_url': reverse('layoutfile_add', kwargs={'file_type': 'css'}),
+				'admin_url': reverse('admin:layoutfile_list', kwargs={'file_type': 'css'}),
+				'add_url': reverse('admin:layoutfile_add', kwargs={'file_type': 'css'}),
 			}
 			templates_model = {
 				'name': 'Templates',
 				'object_name': 'template',
-				'admin_url': reverse('layoutfile_list', kwargs={'file_type': 'template'}),
-				'add_url': reverse('layoutfile_add', kwargs={'file_type': 'template'}),
+				'admin_url': reverse('admin:layoutfile_list', kwargs={'file_type': 'template'}),
+				'add_url': reverse('admin:layoutfile_add', kwargs={'file_type': 'template'}),
 			}
 			if label == 'layout':
 				app_dict['models'] = [css_model, templates_model]
@@ -52,6 +55,29 @@ class MyAdminSite(AdminSite):
 
 		return app_dict
 
-	index_template = 'website/admin_index.html'
+	def get_urls(self):
+		urls = super(MyAdminSite, self).get_urls()
+		my_urls = [
+			url(
+				r'^layout/(?P<file_type>css|template)/$',
+				self.admin_view(layout.views.layoutfile_list), name='layoutfile_list'
+			),
+			url(
+				r'^layout/(?P<file_type>css|template)/add/$',
+				self.admin_view(layout.views.layoutfile_add), name='layoutfile_add'
+			),
+			url(
+				r'^layout/(?P<file_type>css|template)/(?P<file_name>[-\w]+\.(css|html))/change/$',
+				self.admin_view(layout.views.layoutfile_change), name='layoutfile_change'
+			),
+			url(
+				r'^content/(?P<template>files|images)/(?P<path>[-\w/ ]+)?$',
+				self.admin_view(layout.views.file_browser), name='file_browser'
+			),
+			url(r'^all_pages$', content.views.all_pages),
+			url(r'^all_images$', layout.views.all_images),
+			url(r'^get_thumbnail$', layout.views.get_thumbnail),
+		]
+		return my_urls + urls
 
 admin_site = MyAdminSite(name='myadmin')
