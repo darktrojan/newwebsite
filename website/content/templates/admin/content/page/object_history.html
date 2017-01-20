@@ -1,6 +1,17 @@
 {% extends "admin/object_history.html" %}
+{% load i18n admin_urls %}
 
 {% block content %}
+{% block object-tools %}
+<ul class="object-tools">
+	<li>
+		{% url opts|admin_urlname:'change' object.pk|admin_urlquote as history_url %}
+		<a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "Change" %}</a>
+	</li>
+	<li><a href="{{ object.url }}" class="viewsitelink">{% trans "View on site" %}</a></li>
+</ul>
+{% endblock %}
+
 <ul>
 <style type="text/css">
 table {
