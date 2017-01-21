@@ -133,10 +133,29 @@ imageform.onreset = function() {
 	imageform.querySelector('button[type="submit"]').disabled = true;
 	Edit.currentWindow.focus();
 };
-Edit.imageCallback = function() {
+imageform.width.oninput = function() {
+	var thumb = imageform.querySelector('img');
+	imageform.height.value = Math.round(this.value / thumb.naturalWidth * thumb.naturalHeight);
+};
+imageform.height.oninput = function() {
+	var thumb = imageform.querySelector('img');
+	imageform.width.value = Math.round(this.value / thumb.naturalHeight * thumb.naturalWidth);
+};
+Edit.imageCallback = function(existing) {
 	imageareabg.style.display = 'block';
 	imagearea.style.display = 'flex';
 	imagearea.querySelector('div').focus();
+
+	if (existing) {
+		var thumb = imageform.querySelector('img');
+		thumb.src = imageform.src.value = existing.getAttribute('src');
+		imageform.width.value = existing.getAttribute('width');
+		imageform.height.value = existing.getAttribute('height');
+		imageform.querySelector('button').disabled = false;
+		imageform.querySelector('button').textContent = 'Update';
+	} else {
+		imageform.querySelector('button').textContent = 'Insert';
+	}
 };
 
 var linkarea = document.getElementById('linkarea');

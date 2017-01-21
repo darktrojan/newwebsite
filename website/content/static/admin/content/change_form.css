@@ -1,3 +1,15 @@
+#imagearea,
+#linkarea {
+	font-size: 14px;
+	font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+	color: #333;
+}
+#imagearea a:link,
+#imagearea a:visited {
+	color: #447e9b;
+	text-decoration: none;
+}
+
 #id_content {
 	width: 100%;
 	height: 80vh;
@@ -93,6 +105,9 @@
 	padding: 4px 8px;
 	margin: 0;
 	color: #333;
+}
+#imagearea input[type="number"] {
+	width: 75px;
 }
 #linkarea {
 	display: none;
