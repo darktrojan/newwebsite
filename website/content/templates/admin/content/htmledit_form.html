@@ -1,7 +1,8 @@
 {% extends 'admin/change_form.html' %}
 {% load static %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "pageedit/pageedit.css" %}" />
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "pageedit/pageedit.css" %}" />
 <link rel="stylesheet" type="text/css" href="{% static "admin/content/change_form.css" %}">{% endblock %}
 
 {% block footer %}

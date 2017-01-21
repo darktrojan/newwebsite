@@ -8,7 +8,6 @@ from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape, format_html
-from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.timezone import now
 from django.utils.translation import ngettext
@@ -20,19 +19,17 @@ from layout.models import get_templates
 from website.admin import admin_site
 
 
-def make_published(modeladmin, request, queryset):
-	queryset.update(status='P')
-
-
 def view_on_site_inline(obj):
-	return mark_safe('<a href="%s">View on site</a>' % obj.url)
+	return format_html('<a href="{}">View on site</a>', obj.url)
 view_on_site_inline.short_description = 'View on site'
 
 
 class PageAdmin(ModelAdmin):
 	list_display = ('url', 'title', 'status', 'modified', 'template', view_on_site_inline,)
 	list_filter = ('status', 'template',)
-	actions = ('change_template', make_published,)
+	actions = ('change_template', 'make_published',)
+	actions_on_top = False
+	actions_on_bottom = True
 	ordering = ('url',)
 
 	fieldsets = ((None, {
@@ -41,6 +38,10 @@ class PageAdmin(ModelAdmin):
 		'classes': ('collapse',),
 		'fields': ('template', 'status', 'extra_header_content',),
 	}),)
+
+	search_fields = ['url', 'title']
+	save_as = True
+	save_on_top = True
 
 	change_list_template = 'admin/content/page/change_list.html'
 	change_form_template = 'admin/content/htmledit_form.html'
@@ -57,6 +58,9 @@ class PageAdmin(ModelAdmin):
 			(updated, ngettext('page', 'pages', updated), new_template)
 		)
 	change_template.short_description = u'Change template to\u2026'
+
+	def make_published(modeladmin, request, queryset):
+		queryset.update(status='P')
 	make_published.short_description = 'Mark selected pages as published'
 
 	def view_on_site(self, obj):
@@ -148,11 +152,14 @@ class MenuEntryAdmin(DraggableMPTTAdmin):
 class BlogEntryAdmin(ModelAdmin):
 	list_display = ('title', 'status', 'modified', view_on_site_inline,)
 	list_filter = ('status',)
-	actions = (make_published,)
+	actions = ('make_published',)
 	ordering = ('-created',)
 	prepopulated_fields = {'slug': ('title',)}
 
 	change_form_template = 'admin/content/htmledit_form.html'
+
+	def make_published(modeladmin, request, queryset):
+		queryset.update(status='P')
 	make_published.short_description = 'Mark selected entries as published'
 
 	def view_on_site(self, obj):
