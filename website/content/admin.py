@@ -20,7 +20,7 @@ from website.admin import admin_site
 
 
 def view_on_site_inline(obj):
-	return format_html('<a href="{}">View on site</a>', obj.url)
+	return format_html('<a href="{}" target="_blank">View on site</a>', obj.url)
 view_on_site_inline.short_description = 'View on site'
 
 

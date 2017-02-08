@@ -6,9 +6,9 @@
 <ul class="object-tools">
 	<li>
 		{% url opts|admin_urlname:'change' object.pk|admin_urlquote as history_url %}
-		<a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "Change" %}</a>
+		<a href="{% add_preserved_filters history_url %}" class="changelink">{% trans "Change" %}</a>
 	</li>
-	<li><a href="{{ object.url }}" class="viewsitelink">{% trans "View on site" %}</a></li>
+	<li><a href="{{ object.url }}" target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
 </ul>
 {% endblock %}
 
