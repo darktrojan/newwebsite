@@ -1,25 +1,25 @@
 {% load static %}
-<div id="imageareabg"></div>
-<div id="imagearea" class="edit_ui" tabindex="0">
-	<div style="flex: 1; overflow-y: auto;"></div>
+<div id="pickerbackground" style="display: none;"></div>
+<div id="imagearea" class="edit_ui" style="display: none;" tabindex="0">
+	<div></div>
 	<form>
-		<img style="max-width: 150px; max-height: 120px; display: block; margin: 2px auto;" />
-		<div style="font-weight: 600;margin: 5px 0;overflow: hidden;text-overflow: ellipsis;text-align: center;"></div>
+		<img />
+		<div></div>
 		<input type="hidden" name="src" />
-		<label style="display: block; margin: 2px 0;">Width: <input type="number" name="width" size="4" /></label>
-		<label style="display: block; margin: 2px 0;">Height: <input type="number" name="height" size="4" /></label>
+		<label>Width: <input type="number" name="width" size="4" /></label>
+		<label>Height: <input type="number" name="height" size="4" /></label>
 		<button type="submit" disabled>Insert</button>
 		<button type="reset">Cancel</button>
 	</form>
 </div>
-<div id="linkarea" class="edit_ui" tabindex="0" style="flex-direction: column;">
-	<select style="flex: 1;padding: 0;" size="20">
+<div id="linkarea" class="edit_ui" style="display: none;" tabindex="0">
+	<select size="20">
 	</select>
-	<form style="margin-inline-start: 0;margin-block-start: 1em;width: auto;">
-		<label style="display: block;">URL:
-			<input name="href" value="/" style="max-width: 100%;box-sizing: border-box;" type="text" />
+	<form>
+		<label>URL:
+			<input type="text" name="href" value="/" />
 		</label>
-		<label style="display: block;">Open link in:
+		<label>Open link in:
 			<select name="target">
 				<option value="">same tab</option>
 				<option value="_blank">new tab</option>

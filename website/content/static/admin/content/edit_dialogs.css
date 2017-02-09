@@ -10,7 +10,7 @@
 	text-decoration: none;
 }
 #imageareabg {
-	display: none;
+	display: block;
 	position: fixed;
 	top: 0;
 	right: 0;
@@ -20,7 +20,7 @@
 	background-color: rgba(0, 0, 0, 0.25);
 }
 #imagearea {
-	display: none;
+	display: flex;
 	position: fixed;
 	top: 50px;
 	left: 50px;
@@ -32,6 +32,10 @@
 	box-shadow: 0 0 50px;
 	z-index: 100;
 	overflow: auto;
+}
+#imagearea > div:first-child {
+	flex: 1;
+	overflow-y: auto;
 }
 #imagearea div.image {
 	display: inline-block;
@@ -66,6 +70,24 @@
 	text-align: right;
 	box-sizing: border-box;
 }
+#imagearea form img {
+	max-width: 150px;
+	max-height: 120px;
+	display: block;
+	margin: 2px auto;
+}
+#imagearea form div {
+	font-weight: 600;
+	margin: 5px 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+}
+#imagearea form label,
+#linkarea form label {
+	display: block;
+	margin: 2px 0;
+}
 #imagearea input,
 #linkarea input {
 	margin: 0;
@@ -98,7 +120,7 @@
 	width: 75px;
 }
 #linkarea {
-	display: none;
+	display: flex;
 	position: fixed;
 	top: 50px;
 	left: 50%;
@@ -111,6 +133,7 @@
 	z-index: 100;
 	max-height: calc(100% - 100px);
 	overflow: auto;
+	flex-direction: column;
 }
 #linkarea option.link::after {
     content: ' ' attr(value);
@@ -119,13 +142,19 @@
 #linkarea form {
 	margin-inline-start: 0;
 	margin-block-start: 1em;
+	width: auto;
 }
-select[size] {
+#linkarea select[size] {
+	flex: 1;
 	padding: 0;
 }
-select[size] option {
+#linkarea select[size] option {
 	padding: 2px 5px;
 	font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+}
+#linkarea input[name="href"] {
+	max-width: 100%;
+	box-sizing: border-box;
 }
 
 .folder-icon {
