@@ -20,7 +20,7 @@ from website.admin import admin_site
 
 
 def view_on_site_inline(obj):
-	return format_html('<a href="{}" target="_blank">View on site</a>', obj.url)
+	return format_html('<a href="{}" target="_blank">View on site</a>', obj.get_absolute_url())
 view_on_site_inline.short_description = 'View on site'
 
 
@@ -43,8 +43,7 @@ class PageAdmin(ModelAdmin):
 	save_as = True
 	save_on_top = True
 
-	change_list_template = 'admin/content/page/change_list.html'
-	change_form_template = 'admin/content/htmledit_form.html'
+	change_form_template = 'admin/content/edit_change_form.html'
 
 	def changelist_view(self, request, extra_context=None):
 		extra_context = extra_context or {}
@@ -156,7 +155,7 @@ class BlogEntryAdmin(ModelAdmin):
 	ordering = ('-created',)
 	prepopulated_fields = {'slug': ('title',)}
 
-	change_form_template = 'admin/content/htmledit_form.html'
+	change_form_template = 'admin/content/edit_change_form.html'
 
 	def make_published(modeladmin, request, queryset):
 		queryset.update(status='P')

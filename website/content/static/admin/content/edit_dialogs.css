@@ -9,18 +9,6 @@
 	color: #447e9b;
 	text-decoration: none;
 }
-
-#id_content {
-	width: 100%;
-	height: 80vh;
-	box-sizing: border-box;
-}
-#richarea {
-	border: 1px #ccc solid;
-	width: 100%;
-	height: 80vh;
-	box-sizing: border-box;
-}
 #imageareabg {
 	display: none;
 	position: fixed;
@@ -137,6 +125,7 @@ select[size] {
 }
 select[size] option {
 	padding: 2px 5px;
+	font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
 }
 
 .folder-icon {

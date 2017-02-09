@@ -20,7 +20,7 @@ iframe.contentWindow.onload = function() {
 	richarea = iframe.contentDocument.body;
 	var link = document.createElement('link');
 	link.rel = 'stylesheet';
-	link.href = '/static/admin/content/iframe.css';
+	link.href = '/static/admin/content/edit_iframe.css';
 	link.type = 'text/css';
 	iframe.contentDocument.head.appendChild(link);
 	read_input();

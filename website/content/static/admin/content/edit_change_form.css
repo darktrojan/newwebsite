@@ -1,0 +1,11 @@
+#id_content {
+	width: 100%;
+	height: 80vh;
+	box-sizing: border-box;
+}
+#richarea {
+	border: 1px #ccc solid;
+	width: 100%;
+	height: 80vh;
+	box-sizing: border-box;
+}

@@ -233,7 +233,7 @@ def file_browser(request, template, path=None):
 		dirs=dirs,
 		files=files,
 	)
-	return render(request, 'content/' + template + '.html', context)
+	return render(request, 'admin/content/' + template[:-1] + '_browser.html', context)
 
 
 @staff_member_required

@@ -30,6 +30,9 @@ class Page(models.Model):
 	def __unicode__(self):
 		return self.url
 
+	def get_absolute_url(self):
+		return self.url
+
 	def save(self, *args, **kwargs):
 		self.content = self.content.replace('\r', '')
 		self.extra_header_content = self.extra_header_content.replace('\r', '')
