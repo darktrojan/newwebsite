@@ -14,7 +14,7 @@ from django.utils.translation import ngettext
 
 from mptt.admin import DraggableMPTTAdmin
 
-from content.models import BlogEntry, MenuEntry, Page, PageHistory
+from content.models import BlogEntry, MenuEntry, Page, PageHistory, PUBLISH_STATUS_CHOICES
 from layout.models import get_templates
 from website.admin import admin_site
 
@@ -24,30 +24,37 @@ def view_on_site_inline(obj):
 view_on_site_inline.short_description = 'View on site'
 
 
-class PageAdmin(ModelAdmin):
-	list_display = ('url', 'title', 'status', 'modified', 'template', view_on_site_inline,)
+class PageAdmin(DraggableMPTTAdmin):
+	mptt_indent_field = 'title'
+	list_display = (
+		'tree_actions', 'indented_title', 'alias',
+		'status', 'modified', view_on_site_inline,
+	)
 	list_filter = ('status', 'template',)
-	actions = ('change_template', 'make_published',)
+	actions = ('change_template', 'change_status',)
 	actions_on_top = False
 	actions_on_bottom = True
-	ordering = ('url',)
 
 	fieldsets = ((None, {
-		'fields': (('title', 'url',), 'content',)
+		'fields': (('title', 'alias',), 'content',)
 	}), ('Advanced options', {
 		'classes': ('collapse',),
 		'fields': ('template', 'status', 'extra_header_content',),
 	}),)
 
-	search_fields = ['url', 'title']
+	search_fields = ['alias', 'title']
 	save_as = True
 	save_on_top = True
+
+	def has_delete_permission(self, request, obj=None):
+		return False
 
 	change_form_template = 'admin/content/edit_change_form.html'
 
 	def changelist_view(self, request, extra_context=None):
 		extra_context = extra_context or {}
 		extra_context['template_names'] = get_templates()
+		extra_context['statuses'] = PUBLISH_STATUS_CHOICES
 		return super(PageAdmin, self).changelist_view(request, extra_context)
 
 	def change_template(self, request, queryset):
@@ -58,12 +65,30 @@ class PageAdmin(ModelAdmin):
 		)
 	change_template.short_description = u'Change template to\u2026'
 
-	def make_published(modeladmin, request, queryset):
-		queryset.update(status='P')
-	make_published.short_description = 'Mark selected pages as published'
+	def change_status(modeladmin, request, queryset):
+		new_status = request.POST.get('action-status')
+		updated = queryset.update(status=new_status)
+		for value, name in PUBLISH_STATUS_CHOICES:
+			if value == new_status:
+				break
+		messages.success(request, '%d %s marked as %s' %
+			(updated, ngettext('page', 'pages', updated), name.lower())
+		)
+	change_status.short_description = u'Mark selected pages as\u2026'
+
+	def indented_title(self, item):
+		return format_html(
+			'<span style="margin-inline-start: {}px">{}</span>',
+			item._mpttfield('level') * self.mptt_level_indent,
+			item.title,
+		)
+	indented_title.short_description = 'Title'
+
+	def url(self, item):
+		return item.get_absolute_url()
 
 	def view_on_site(self, obj):
-		return obj.url
+		return obj.get_absolute_url()
 
 	def save_model(self, request, obj, form, change):
 		obj.modified = now()
@@ -91,6 +116,7 @@ class PageAdmin(ModelAdmin):
 			opts=opts,
 			module_name=capfirst(force_text(opts.verbose_name_plural)),
 			preserved_filters=self.get_preserved_filters(request),
+			view_on_site_url=obj.get_absolute_url(),
 		)
 
 		def _format_line(self, side, flag, linenum, text):
@@ -109,7 +135,7 @@ class PageAdmin(ModelAdmin):
 		setattr(difflib.HtmlDiff, '_format_line', _format_line)
 
 		previous = ['']
-		history = obj.pagehistory_set.all().order_by('-modified')
+		history = obj.revisions.all().order_by('-modified')
 		if 'revision' in request.GET:
 			try:
 				current_version = history.get(pk=request.GET['revision'])
@@ -122,6 +148,9 @@ class PageAdmin(ModelAdmin):
 				current = current_version.content.splitlines()
 				current_version.diff = differ.make_table(previous, current, context=True, numlines=4)
 				context['history'] = [current_version]
+				context['view_on_site_url'] += '?revision=%d' % current_version.pk
+				context['previous_revision'] = history.filter(pk__lt=current_version.pk).first()
+				context['next_revision'] = history.filter(pk__gt=current_version.pk).last()
 			except PageHistory.DoesNotExist:
 				raise Http404
 		else:

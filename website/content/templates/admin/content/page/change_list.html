@@ -8,6 +8,11 @@
 	<option value="{{ name }}">{{ name }}</li>
 {% endfor %}
 </select>
+<select name="action-status" style="margin: 0 5px; display: none;">
+{% for value, name in statuses %}
+	<option value="{{ value }}">{{ name | lower }}</li>
+{% endfor %}
+</select>
 </label>
 <script type="text/javascript">
 (function() {
@@ -17,6 +22,7 @@
 
 	document.querySelector('select[name="action"]').onchange = function() {
 		document.querySelector('select[name="action-template"]').style.display = (this.value == 'change_template') ? null : 'none';
+		document.querySelector('select[name="action-status"]').style.display = (this.value == 'change_status') ? null : 'none';
 	}
 })();
 </script>

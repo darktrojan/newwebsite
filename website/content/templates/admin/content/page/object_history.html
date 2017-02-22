@@ -8,7 +8,13 @@
 		{% url opts|admin_urlname:'change' object.pk|admin_urlquote as history_url %}
 		<a href="{% add_preserved_filters history_url %}" class="changelink">{% trans "Change" %}</a>
 	</li>
-	<li><a href="{{ object.url }}" target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
+	{% if previous_revision %}
+		<li><a href="?revision={{ previous_revision.pk }}">Previous revision</a></li>
+	{% endif %}
+	{% if next_revision %}
+		<li><a href="?revision={{ next_revision.pk }}">Next revision</a></li>
+	{% endif %}
+	<li><a href="{{ view_on_site_url }}" target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
 </ul>
 {% endblock %}
 

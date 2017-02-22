@@ -19,7 +19,14 @@ from website import settings
 
 
 def page(request):
-	page = get_object_or_404(Page, url=request.path)
+	alias = request.path[request.path.rfind('/') + 1:]
+	if alias == '':
+		alias = 'home'
+	page = get_object_or_404(Page, alias=alias)
+
+	url = page.get_absolute_url()
+	if request.path != url:
+		return HttpResponseRedirect(url)
 
 	if not request.user.has_perm('content.add_page') and page.status != 'P':
 		raise Http404
@@ -31,7 +38,7 @@ def page(request):
 
 	if 'revision' in request.GET:
 		try:
-			version = page.pagehistory_set.get(pk=request.GET['revision'])
+			version = page.revisions.get(pk=request.GET['revision'])
 			page.title = version.title
 			page.content = version.content
 			page.extra_header_content = version.extra_header_content

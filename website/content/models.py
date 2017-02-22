@@ -17,8 +17,9 @@ PUBLISH_STATUS_CHOICES = (
 )
 
 
-class Page(models.Model):
-	url = models.CharField(max_length=255, unique=True)
+class Page(MPTTModel):
+	parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+	alias = models.CharField(max_length=255, unique=True)
 	title = models.CharField(max_length=255)
 	template = TemplateField()
 	content = models.TextField(blank=True)
@@ -28,10 +29,15 @@ class Page(models.Model):
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
 	def __unicode__(self):
-		return self.url
+		return self.get_absolute_url()
 
 	def get_absolute_url(self):
-		return self.url
+		if self.alias == 'home':
+			return '/'
+		parts = []
+		for page in self.get_ancestors(include_self=True):
+			parts.append(page.alias)
+		return '/' + '/'.join(parts)
 
 	def save(self, *args, **kwargs):
 		self.content = self.content.replace('\r', '')
@@ -40,7 +46,7 @@ class Page(models.Model):
 
 
 class PageHistory(models.Model):
-	page = models.ForeignKey('Page')
+	page = models.ForeignKey('Page', related_name='revisions')
 	title = models.CharField(max_length=255)
 	content = models.TextField(blank=True)
 	extra_header_content = models.TextField(blank=True)
