@@ -78,6 +78,11 @@ class PageHistory(models.Model):
 	def get_admin_url(self):
 		return reverse('admin:content_page_history', args=[self.page.pk]) + '?revision=%d' % self.pk
 
+	def get_change_url(self):
+		if self.type == 'H':
+			return None
+		return reverse('admin:content_page_change', args=[self.page.pk]) + '?revision=%d' % self.pk
+
 
 class MenuEntry(MPTTModel):
 	label = models.CharField(max_length=255)

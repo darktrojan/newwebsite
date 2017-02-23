@@ -14,23 +14,25 @@
 {% block content %}
 {% block object-tools %}
 <ul class="object-tools">
+	{% if this_version %}
+		{% if this_version.get_change_url %}
+		<li><a href="{{ this_version.get_change_url }}" class="changelink">{% trans "Change" %}</a></li>
+		{% else %}
+			{% if previous_revision %}
+			<li><a href="?revision={{ previous_revision.pk }}">Previous revision</a></li>
+			{% endif %}
+			{% if next_revision %}
+			<li><a href="?revision={{ next_revision.pk }}">Next revision</a></li>
+			{% endif %}
+		{% endif %}
+	<li><a href="{{ this_version.get_absolute_url }}" target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
+	{% else %}
 	<li>
 		{% url opts|admin_urlname:'change' object.pk|admin_urlquote as history_url %}
 		<a href="{% add_preserved_filters history_url %}" class="changelink">{% trans "Change" %}</a>
 	</li>
-	{% if previous_revision %}
-		<li><a href="?revision={{ previous_revision.pk }}">Previous revision</a></li>
+	<li><a href="{{ object.get_absolute_url }}"target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
 	{% endif %}
-	{% if next_revision %}
-		<li><a href="?revision={{ next_revision.pk }}">Next revision</a></li>
-	{% endif %}
-	<li><a
-	{% if this_version %}
-		href="{{ this_version.get_absolute_url }}"
-	{% else %}
-		href="{{ object.get_absolute_url }}"
-	{% endif %}
-	target="_blank" class="viewsitelink">{% trans "View on site" %}</a></li>
 </ul>
 {% endblock %}
 
@@ -72,21 +74,21 @@ td:nth-of-type(3n) {
 		{% if forloop.first %}
 		<h2>Drafts</h2>
 		<ul>{% endif %}
-		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }} [{{ item.type }}]</a></li>
+		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }}</a></li>
 		{% if forloop.last %}</ul>{% endif %}
 	{% endfor %}
 	{% for item in object.future_set %}
 		{% if forloop.first %}
 		<h2>Future</h2>
 		<ul>{% endif %}
-		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }} [{{ item.type }}]</a></li>
+		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }}</a></li>
 		{% if forloop.last %}</ul>{% endif %}
 	{% endfor %}
 	{% for item in object.history_set %}
 		{% if forloop.first %}
 		<h2>History</h2>
 		<ul>{% endif %}
-		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }} [{{ item.type }}]</a></li>
+		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }}</a></li>
 		{% if forloop.last %}</ul>{% endif %}
 	{% endfor %}
 {% endif %}

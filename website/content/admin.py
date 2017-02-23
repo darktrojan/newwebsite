@@ -1,4 +1,6 @@
 import difflib
+from datetime import datetime
+from pytz import UTC
 
 from django.contrib import messages
 from django.contrib.admin import ModelAdmin
@@ -99,9 +101,66 @@ class PageAdmin(DraggableMPTTAdmin):
 		return obj.get_absolute_url()
 
 	def save_model(self, request, obj, form, change):
+		if 'revision' in request.GET:
+			try:
+				version = obj.revisions.get(pk=request.GET['revision'])
+				version.title = obj.title
+				version.content = obj.content
+				version.extra_header_content = obj.extra_header_content
+				if version.type == 'D':
+					version.modified = datetime.now(UTC)
+				elif version.type == 'F':
+					version.modified = obj.modified
+				version.save()
+			except PageHistory.DoesNotExist:
+				raise Http404
+			return
+
 		obj.modified = now()
 		obj.modifier = request.user
 		super(PageAdmin, self).save_model(request, obj, form, change)
+
+	def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+		if extra_context is None:
+			extra_context = {}
+
+		if 'revision' in request.GET:
+			extra_context['revision'] = request.GET['revision']
+
+		return super(PageAdmin, self).changeform_view(request, object_id, form_url, extra_context)
+
+	def response_change(self, request, obj):
+		response = super(PageAdmin, self).response_change(request, obj)
+
+		if 'revision' in request.GET and '_continue' in request.POST:
+			response['location'] = '?revision=%d' % int(request.GET['revision'])
+
+		return response
+
+	def get_fieldsets(self, request, obj=None):
+		if 'revision' in request.GET:
+			fields = ['title', 'content', 'extra_header_content']
+			if obj.revisions.get(pk=int(request.GET['revision'])).type == 'F':
+				fields.append('modified')
+			return ((None, {
+				'fields': fields
+			}),)
+		return self.fieldsets
+
+	def get_object(self, request, object_id, from_field=None):
+		obj = super(PageAdmin, self).get_object(request, object_id, from_field)
+
+		if 'revision' in request.GET:
+			try:
+				version = obj.revisions.get(pk=request.GET['revision'])
+				obj.title = version.title
+				obj.content = version.content
+				obj.extra_header_content = version.extra_header_content
+				obj.modified = version.modified
+			except PageHistory.DoesNotExist:
+				raise Http404
+
+		return obj
 
 	def history_view(self, request, object_id, extra_context=None):
 		model = self.model
@@ -148,14 +207,14 @@ class PageAdmin(DraggableMPTTAdmin):
 				if 'compare' in request.GET:
 					previous_version = obj.revisions.get(pk=request.GET['compare'])
 				else:
-					previous_version = obj.revisions.filter(pk__lt=request.GET['revision']).first()
+					previous_version = obj.revisions.filter(pk__lt=request.GET['revision']).last()
 				if previous_version is not None:
 					previous = previous_version.content.splitlines()
 				current = current_version.content.splitlines()
 				current_version.diff = differ.make_table(previous, current, context=True, numlines=4)
 				context['this_version'] = current_version
-				context['previous_revision'] = obj.revisions.filter(pk__lt=current_version.pk).first()
-				context['next_revision'] = obj.revisions.filter(pk__gt=current_version.pk).last()
+				context['previous_revision'] = obj.revisions.filter(pk__lt=current_version.pk).last()
+				context['next_revision'] = obj.revisions.filter(pk__gt=current_version.pk).first()
 			except PageHistory.DoesNotExist:
 				raise Http404
 
