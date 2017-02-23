@@ -46,6 +46,14 @@ class PageAdmin(DraggableMPTTAdmin):
 	save_as = True
 	save_on_top = True
 
+	def get_queryset(self, request):
+		qs = super(PageAdmin, self).get_queryset(request)
+		for name in ['status__exact', 'q', 'template']:
+			if name in request.GET:
+				return qs
+
+		return qs.filter(status__exact='P')
+
 	def has_delete_permission(self, request, obj=None):
 		return False
 
@@ -111,54 +119,45 @@ class PageAdmin(DraggableMPTTAdmin):
 
 		context = dict(
 			self.admin_site.each_context(request),
-			title='Change history: ' + str(obj),
+			title='Versions: ' + str(obj),
 			object=obj,
 			opts=opts,
 			module_name=capfirst(force_text(opts.verbose_name_plural)),
 			preserved_filters=self.get_preserved_filters(request),
-			view_on_site_url=obj.get_absolute_url(),
 		)
 
-		def _format_line(self, side, flag, linenum, text):
-			try:
-				linenum = '%d' % linenum
-			except TypeError:
-				# handle blank lines where linenum is '>' or ''
-				pass
-			# replace those things that would get confused with HTML symbols
-			text = text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;')
-
-			return '<td>%s</td><td>%s</td>' % (linenum, text)
-
-		differ = difflib.HtmlDiff()
-		setattr(differ, '_table_template', '<table class="diff">%(data_rows)s</table>')
-		setattr(difflib.HtmlDiff, '_format_line', _format_line)
-
-		previous = ['']
-		history = obj.revisions.all().order_by('-modified')
 		if 'revision' in request.GET:
+			def _format_line(self, side, flag, linenum, text):
+				try:
+					linenum = '%d' % linenum
+				except TypeError:
+					# handle blank lines where linenum is '>' or ''
+					pass
+				# replace those things that would get confused with HTML symbols
+				text = text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;')
+
+				return '<td>%s</td><td>%s</td>' % (linenum, text)
+
+			differ = difflib.HtmlDiff()
+			setattr(differ, '_table_template', '<table class="diff">%(data_rows)s</table>')
+			setattr(difflib.HtmlDiff, '_format_line', _format_line)
+
 			try:
-				current_version = history.get(pk=request.GET['revision'])
+				previous = ['']
+				current_version = obj.revisions.get(pk=request.GET['revision'])
 				if 'compare' in request.GET:
-					previous_version = history.get(pk=request.GET['compare'])
+					previous_version = obj.revisions.get(pk=request.GET['compare'])
 				else:
-					previous_version = history.filter(pk__lt=request.GET['revision']).first()
+					previous_version = obj.revisions.filter(pk__lt=request.GET['revision']).first()
 				if previous_version is not None:
 					previous = previous_version.content.splitlines()
 				current = current_version.content.splitlines()
 				current_version.diff = differ.make_table(previous, current, context=True, numlines=4)
-				context['history'] = [current_version]
-				context['view_on_site_url'] += '?revision=%d' % current_version.pk
-				context['previous_revision'] = history.filter(pk__lt=current_version.pk).first()
-				context['next_revision'] = history.filter(pk__gt=current_version.pk).last()
+				context['this_version'] = current_version
+				context['previous_revision'] = obj.revisions.filter(pk__lt=current_version.pk).first()
+				context['next_revision'] = obj.revisions.filter(pk__gt=current_version.pk).last()
 			except PageHistory.DoesNotExist:
 				raise Http404
-		else:
-			for h in sorted(history, key=lambda x: x.modified):
-				current = h.content.splitlines()
-				h.diff = differ.make_table(previous, current, context=True, numlines=4)
-				previous = current
-			context['history'] = history
 
 		context.update(extra_context or {})
 

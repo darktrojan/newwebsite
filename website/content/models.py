@@ -16,6 +16,11 @@ PUBLISH_STATUS_CHOICES = (
 	('D', 'Draft'),
 	('A', 'Archived'),
 )
+REVISION_TYPE_CHOICES = (
+	('D', 'Draft'),
+	('F', 'Future'),
+	('H', 'History'),
+)
 
 
 class Page(MPTTModel):
@@ -40,6 +45,15 @@ class Page(MPTTModel):
 			parts.append(page.alias)
 		return '/' + '/'.join(parts)
 
+	def draft_set(self):
+		return self.revisions.filter(type='D').order_by('-modified')
+
+	def future_set(self):
+		return self.revisions.filter(type='F').order_by('-modified')
+
+	def history_set(self):
+		return self.revisions.filter(type='H').order_by('-modified')
+
 	def save(self, *args, **kwargs):
 		self.content = self.content.replace('\r', '')
 		self.extra_header_content = self.extra_header_content.replace('\r', '')
@@ -48,6 +62,7 @@ class Page(MPTTModel):
 
 class PageHistory(models.Model):
 	page = models.ForeignKey('Page', related_name='revisions')
+	type = models.CharField(max_length=1, choices=REVISION_TYPE_CHOICES, default='H')
 	title = models.CharField(max_length=255)
 	content = models.TextField(blank=True)
 	extra_header_content = models.TextField(blank=True)
@@ -55,7 +70,13 @@ class PageHistory(models.Model):
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 
 	def __unicode__(self):
-		return '%s @ %s' % (self.page, self.modified)
+		return '%s @ %s [%s]' % (self.page, self.modified, self.type)
+
+	def get_absolute_url(self):
+		return self.page.get_absolute_url() + '?revision=%d' % self.pk
+
+	def get_admin_url(self):
+		return reverse('admin:content_page_history', args=[self.page.pk]) + '?revision=%d' % self.pk
 
 
 class MenuEntry(MPTTModel):
