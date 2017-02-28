@@ -6,9 +6,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import permission_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
+from django.utils.feedgenerator import Atom1Feed
+from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
 
 from easy_thumbnails.alias import aliases
@@ -28,15 +30,11 @@ def page(request):
 	if request.path != url:
 		return HttpResponseRedirect(url)
 
-	if not request.user.has_perm('content.add_page') and page.status != 'P':
+	is_editor = request.user.has_perm('content.add_page')
+	if not is_editor and page.status != 'P':
 		raise Http404
 
-	context = {
-		'site_name': settings.SITE_NAME,
-		'page': page
-	}
-
-	if 'revision' in request.GET:
+	if is_editor and 'revision' in request.GET:
 		try:
 			version = page.revisions.get(pk=request.GET['revision'])
 			page.title = version.title
@@ -44,6 +42,15 @@ def page(request):
 			page.extra_header_content = version.extra_header_content
 		except PageHistory.DoesNotExist:
 			raise Http404
+
+	context = {
+		'site_name': settings.SITE_NAME,
+		'page': page,
+		'alias': page.alias,
+		'title': page.title,
+		'content': mark_safe(page.content),
+		'extra_header_content': mark_safe(page.extra_header_content),
+	}
 
 	return render(request, page.template, context)
 
@@ -77,8 +84,25 @@ def blog_list(request, year=None, date=None, tag=None):
 		entry_list = entry_list.filter(status='P')
 
 	entry_list = entry_list.order_by('-created')
-	paginator = Paginator(entry_list, 5)
 
+	if 'atom' in request.GET:
+		feed = Atom1Feed(
+			title=settings.SITE_NAME,
+			description=None,
+			link='%s://%s%s' % (request.scheme, request.META['HTTP_HOST'], request.path)
+		)
+		for entry in entry_list[:5]:
+			feed.add_item(
+				title=entry.title,
+				description=entry.content,
+				link=entry.get_absolute_url(),
+				pubdate=entry.created,
+				updateddate=entry.modified,
+			)
+		xml = feed.writeString('UTF-8')
+		return HttpResponse(xml, content_type='application/atom+xml; charset=utf-8')
+
+	paginator = Paginator(entry_list, 5)
 	page = request.GET.get('page')
 	try:
 		entries = paginator.page(page)
