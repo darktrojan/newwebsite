@@ -22,7 +22,7 @@ from website import settings
 
 def page(request, extra_context=None):
 	alias = request.path[request.path.rfind('/') + 1:]
-	if alias == '':
+	if request.path == '/':
 		alias = 'home'
 	page = get_object_or_404(Page, alias=alias)
 
@@ -76,7 +76,7 @@ def blog_list(request, year=None, date=None, tag=None, extra_context=None):
 	elif date:
 		entry_list = BlogEntry.objects.filter(created__year=date[0:4], created__month=date[5:7])
 	elif tag:
-		regex = r'(^|\b)' + tag + r'(\b|$)'
+		regex = r'(^| )' + tag + r'( |$)'
 		entry_list = BlogEntry.objects.filter(tags__regex=regex)
 	else:
 		entry_list = BlogEntry.objects.all()

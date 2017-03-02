@@ -29,13 +29,13 @@ class Page(MPTTModel):
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
 
 	def __unicode__(self):
-		return self.get_absolute_url()
+		return self.alias
 
 	def get_absolute_url(self):
-		if self.alias == 'home':
-			return '/'
 		parts = []
 		for page in self.get_ancestors(include_self=True):
+			if page.alias == 'home':
+				continue
 			parts.append(page.alias)
 		return '/' + '/'.join(parts)
 
