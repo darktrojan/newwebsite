@@ -20,7 +20,7 @@ from content.models import BlogEntry, Page, PageHistory
 from website import settings
 
 
-def page(request):
+def page(request, extra_context=None):
 	alias = request.path[request.path.rfind('/') + 1:]
 	if alias == '':
 		alias = 'home'
@@ -51,6 +51,7 @@ def page(request):
 		'content': mark_safe(page.content),
 		'extra_header_content': mark_safe(page.extra_header_content),
 	}
+	context.update(extra_context or {})
 
 	return render(request, page.template, context)
 
@@ -69,7 +70,7 @@ def all_pages(request):
 	return JsonResponse(pages, safe=False)
 
 
-def blog_list(request, year=None, date=None, tag=None):
+def blog_list(request, year=None, date=None, tag=None, extra_context=None):
 	if year:
 		entry_list = BlogEntry.objects.filter(created__year=year)
 	elif date:
@@ -113,16 +114,19 @@ def blog_list(request, year=None, date=None, tag=None):
 		# If page is out of range (e.g. 9999), deliver last page of results.
 		entries = paginator.page(paginator.num_pages)
 
-	return render(request, settings.NEWS_TEMPLATE_NAME, {
+	context = {
 		'site_name': settings.SITE_NAME,
 		'title': 'News',
 		'content': loader.render_to_string('content/blog_list.html', {
 			'entries': entries,
 		})
-	})
+	}
+	context.update(extra_context or {})
+
+	return render(request, settings.NEWS_TEMPLATE_NAME, context)
 
 
-def blog_entry(request, date, slug):
+def blog_entry(request, date, slug, extra_context=None):
 	entry = get_object_or_404(
 		BlogEntry, created__year=date[0:4], created__month=date[5:7], slug=slug
 	)
@@ -130,13 +134,16 @@ def blog_entry(request, date, slug):
 	if not request.user.has_perm('content.add_blogentry') and entry.status != 'P':
 		raise Http404
 
-	return render(request, settings.NEWS_TEMPLATE_NAME, {
+	context = {
 		'site_name': settings.SITE_NAME,
 		'title': entry.title,
 		'content': loader.render_to_string('content/blog_entry.html', {
 			'entry': entry,
 		})
-	})
+	}
+	context.update(extra_context or {})
+
+	return render(request, settings.NEWS_TEMPLATE_NAME, context)
 
 
 @staff_member_required
