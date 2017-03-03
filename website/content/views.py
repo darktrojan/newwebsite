@@ -150,10 +150,11 @@ def blog_entry(request, date, slug, extra_context=None):
 @permission_required('layout.files')
 def file_browser(request, template, path=None):
 	# path is checked by urls
+	real_root = os.path.join(settings.MEDIA_ROOT, template)
 	if path is not None:
 		root = os.path.join(settings.MEDIA_ROOT, template, path)
 	else:
-		root = os.path.join(settings.MEDIA_ROOT, template)
+		root = real_root
 
 	if request.method == 'POST':
 		kwargs = {'template': template}
@@ -248,14 +249,14 @@ def file_browser(request, template, path=None):
 				'name': f,
 				'url': reverse('admin:file_browser', kwargs={
 					'template': template,
-					'path': f_path[len(settings.MEDIA_ROOT) + len(template) + 1:]
+					'path': os.path.relpath(f_path, real_root)
 				}),
-				'path': f_path[len(settings.MEDIA_ROOT) + len(template) + 1:],
+				'path': os.path.relpath(f_path, real_root),
 			})
 		elif os.path.isfile(f_path):
 			files.append({
 				'name': f,
-				'path': f_path[len(settings.MEDIA_ROOT):],
+				'path': os.path.relpath(f_path, settings.MEDIA_ROOT),
 				'mtime': date.fromtimestamp(os.path.getmtime(f_path)),
 				'size': os.path.getsize(f_path),
 			})
@@ -287,22 +288,22 @@ def all_images(request):
 				folders.append(do_folder(p))
 			elif p[-4:].lower() == '.svg':
 				images.append({
-					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):]),
-					'thumb': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):])
+					'url': os.path.join(settings.MEDIA_URL, os.path.relpath(p, settings.MEDIA_ROOT)),
+					'thumb': os.path.join(settings.MEDIA_URL, os.path.relpath(p, settings.MEDIA_ROOT))
 				})
 				continue
 			else:
-				thumbnailer = get_thumbnailer(p[len(settings.MEDIA_ROOT):])
+				thumbnailer = get_thumbnailer(os.path.relpath(p, settings.MEDIA_ROOT))
 				existing = thumbnailer.get_existing_thumbnail(aliases.get('smallthumb'))
 				d = {
-					'url': os.path.join(settings.MEDIA_URL, p[len(settings.MEDIA_ROOT):])
+					'url': os.path.join(settings.MEDIA_URL, os.path.relpath(p, settings.MEDIA_ROOT))
 				}
 				if existing is not None:
 					d['thumb'] = os.path.join(settings.MEDIA_URL, existing.name)
 				images.append(d)
 
 		return {
-			'path': path[len(root) + 1:],
+			'path': os.path.relpath(path, root),
 			'images': sorted(images, key=lambda x: x['url'].lower()),
 			'folders': sorted(folders, key=lambda x: x['path'].lower())
 		}
