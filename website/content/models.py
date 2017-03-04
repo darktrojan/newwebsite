@@ -70,7 +70,7 @@ class MenuEntry(MPTTModel):
 
 
 class BlogEntry(models.Model):
-	created = models.DateTimeField(default=timezone.now)
+	created = models.DateTimeField(default=timezone.now, editable=False)
 	modified = models.DateTimeField(auto_now=True)
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 	slug = models.SlugField(max_length=255)
