@@ -20,7 +20,7 @@ def page_history_saver(sender, **kwargs):
 def blog_entry_history_saver(sender, **kwargs):
 	instance = kwargs['instance']
 	version = BlogEntryHistory(
-		page=instance,
+		entry=instance,
 		title=instance.title,
 		content=instance.content,
 		modifier=instance.modifier

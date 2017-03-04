@@ -195,7 +195,7 @@ class BlogEntryAdmin(ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		obj.modifier = request.user
-		super(PageAdmin, self).save_model(request, obj, form, change)
+		super(BlogEntryAdmin, self).save_model(request, obj, form, change)
 
 admin_site.register(Page, PageAdmin)
 admin_site.register(MenuEntry, MenuEntryAdmin)
