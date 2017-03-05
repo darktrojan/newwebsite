@@ -94,7 +94,7 @@ def blog_list(request, year=None, date=None, tag=None, extra_context=None):
 
 
 def _last_entry(request, entry_list):
-	if entry_list.count() == 0:
+	if not entry_list.exists():
 		return None
 
 	return entry_list.latest('modified').modified

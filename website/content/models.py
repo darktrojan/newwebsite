@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
@@ -73,7 +74,7 @@ class BlogEntry(models.Model):
 	created = models.DateTimeField(default=timezone.now, editable=False)
 	modified = models.DateTimeField(auto_now=True)
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
-	slug = models.SlugField(max_length=255)
+	slug = models.SlugField(max_length=255, unique_for_month='created')
 	title = models.CharField(max_length=255, blank=False)
 	content = models.TextField()
 	tags = models.CharField(max_length=255, blank=True)
@@ -93,6 +94,30 @@ class BlogEntry(models.Model):
 
 	def set_tags(self, tags=[]):
 		self.tags = ' '.join(tags)
+
+	def validate_unique(self, exclude=None):
+		super(BlogEntry, self).validate_unique(exclude)
+
+		# Do our own check for duplicate slugs because created is not editable
+
+		model_class = BlogEntry
+		lookup_type = 'month'
+		field = 'slug'
+		unique_for = 'created'
+		lookup_kwargs = {}
+
+		date = getattr(self, unique_for)
+		lookup_kwargs['%s__%s' % (unique_for, lookup_type)] = getattr(date, lookup_type)
+		lookup_kwargs[field] = getattr(self, field)
+
+		qs = model_class._default_manager.filter(**lookup_kwargs)
+		# Exclude the current object from the query if we are editing an
+		# instance (as opposed to creating a new one)
+		if not self._state.adding and self.pk is not None:
+			qs = qs.exclude(pk=self.pk)
+
+		if qs.exists():
+			raise ValidationError(self.date_error_message(lookup_type, field, unique_for))
 
 	class Meta:
 		verbose_name_plural = 'blog entries'

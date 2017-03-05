@@ -182,6 +182,8 @@ class BlogEntryAdmin(ModelAdmin):
 	list_filter = ('status',)
 	actions = ('make_published',)
 	ordering = ('-created',)
+
+	fields = (('title', 'slug',), ('tags', 'status',), 'content',)
 	prepopulated_fields = {'slug': ('title',)}
 
 	change_form_template = 'admin/content/edit_change_form.html'
@@ -196,6 +198,11 @@ class BlogEntryAdmin(ModelAdmin):
 	def save_model(self, request, obj, form, change):
 		obj.modifier = request.user
 		super(BlogEntryAdmin, self).save_model(request, obj, form, change)
+
+	class Media:
+		# Replace built-in URLify function with my own since I want a different
+		# behaviour. This means both files run but I see no way around it.
+		js = ('admin/content/urlify.js',)
 
 admin_site.register(Page, PageAdmin)
 admin_site.register(MenuEntry, MenuEntryAdmin)
