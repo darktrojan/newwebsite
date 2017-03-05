@@ -12,6 +12,7 @@ from django.template import loader
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext
+from django.views.decorators.http import last_modified
 
 from easy_thumbnails.alias import aliases
 from easy_thumbnails.files import get_thumbnailer
@@ -87,22 +88,38 @@ def blog_list(request, year=None, date=None, tag=None, extra_context=None):
 	entry_list = entry_list.order_by('-created')
 
 	if 'atom' in request.GET:
-		feed = Atom1Feed(
-			title=settings.SITE_NAME,
-			description=None,
-			link='%s://%s%s' % (request.scheme, request.META['HTTP_HOST'], request.path)
-		)
-		for entry in entry_list[:5]:
-			feed.add_item(
-				title=entry.title,
-				description=entry.content,
-				link=entry.get_absolute_url(),
-				pubdate=entry.created,
-				updateddate=entry.modified,
-			)
-		xml = feed.writeString('UTF-8')
-		return HttpResponse(xml, content_type='application/atom+xml; charset=utf-8')
+		return _atom_blog_list(request, entry_list)
+	else:
+		return _html_blog_list(request, entry_list, extra_context)
 
+
+def _last_entry(request, entry_list):
+	if entry_list.count() == 0:
+		return None
+
+	return entry_list.latest('modified').modified
+
+
+@last_modified(_last_entry)
+def _atom_blog_list(request, entry_list):
+	feed = Atom1Feed(
+		title=settings.SITE_NAME,
+		description=None,
+		link='%s://%s%s' % (request.scheme, request.META['HTTP_HOST'], request.path)
+	)
+	for entry in entry_list[:5]:
+		feed.add_item(
+			title=entry.title,
+			description=entry.content,
+			link=entry.get_absolute_url(),
+			pubdate=entry.created,
+			updateddate=entry.modified,
+		)
+	xml = feed.writeString('UTF-8')
+	return HttpResponse(xml, content_type='application/atom+xml; charset=utf-8')
+
+
+def _html_blog_list(request, entry_list, extra_context=None):
 	paginator = Paginator(entry_list, 5)
 	page = request.GET.get('page')
 	try:
