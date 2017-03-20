@@ -73,9 +73,14 @@ td:nth-of-type(3n) {
 	{% for item in object.draft_set %}
 		{% if forloop.first %}
 		<h2>Drafts</h2>
-		<ul>{% endif %}
-		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }}</a></li>
-		{% if forloop.last %}</ul>{% endif %}
+		<table>{% endif %}
+		<tr class="{% cycle 'row1' 'row2' %}">
+			<th><a href="{{ item.get_admin_url }}">{{ item.modified }}</a></th>
+			<td>{{ item.modifier }}</td>
+			<td><a href="{{ item.get_change_url }}">Change</a></td>
+			<td><a href="{{ item.get_absolute_url }}" target="_blank">View on site</a></td>
+		</tr>
+		{% if forloop.last %}</table>{% endif %}
 	{% endfor %}
 	{% for item in object.future_set %}
 		{% if forloop.first %}
@@ -87,9 +92,13 @@ td:nth-of-type(3n) {
 	{% for item in object.history_set %}
 		{% if forloop.first %}
 		<h2>History</h2>
-		<ul>{% endif %}
-		<li><a href="{{ item.get_admin_url }}">{{ item.modified }} by {{ item.modifier }}</a></li>
-		{% if forloop.last %}</ul>{% endif %}
+		<table>{% endif %}
+		<tr class="{% cycle 'row1' 'row2' %}">
+			<th><a href="{{ item.get_admin_url }}">{{ item.modified }}</a></th>
+			<td>{{ item.modifier }}</td>
+			<td><a href="{{ item.get_absolute_url }}" target="_blank">View on site</a></td>
+		</tr>
+		{% if forloop.last %}</table>{% endif %}
 	{% endfor %}
 {% endif %}
 {% endblock %}

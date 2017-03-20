@@ -32,7 +32,7 @@ class Page(MPTTModel):
 	extra_header_content = models.TextField(blank=True)
 	modified = models.DateTimeField()
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
-	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES)
+	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES, default='D')
 
 	def __unicode__(self):
 		return self.alias
@@ -45,12 +45,15 @@ class Page(MPTTModel):
 			parts.append(page.alias)
 		return '/' + '/'.join(parts)
 
+	@property
 	def draft_set(self):
 		return self.revisions.filter(type='D').order_by('-modified')
 
+	@property
 	def future_set(self):
 		return self.revisions.filter(type='F').order_by('-modified')
 
+	@property
 	def history_set(self):
 		return self.revisions.filter(type='H').order_by('-modified')
 
@@ -82,6 +85,14 @@ class PageHistory(models.Model):
 		if self.type == 'H':
 			return None
 		return reverse('admin:content_page_change', args=[self.page.pk]) + '?revision=%d' % self.pk
+
+	def make_current(self, modifier):
+		if self.type == 'H':
+			self.pk = None
+		else:
+			self.type = 'H'
+		self.modifier = modifier
+		self.save()
 
 
 class MenuEntry(MPTTModel):

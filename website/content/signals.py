@@ -13,6 +13,8 @@ def page_history_saver(sender, **kwargs):
 		extra_header_content=instance.extra_header_content,
 		modifier=instance.modifier
 	)
+	if instance.status == 'D':
+		version.type = 'D'
 	version.save()
 
 
