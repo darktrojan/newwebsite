@@ -258,7 +258,7 @@ class PageAdmin(DraggableMPTTAdmin):
 				current_version = obj.revisions.get(pk=request.GET['revision'])
 				if 'compare' in request.GET:
 					previous_version = obj.revisions.get(pk=request.GET['compare'])
-				elif current_version.type == ['D', 'F']:
+				elif current_version.type in ['D', 'F']:
 					previous_version = obj
 				else:
 					previous_version = obj.revisions.filter(pk__lt=request.GET['revision']).last()
