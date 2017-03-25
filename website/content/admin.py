@@ -140,7 +140,7 @@ class PageAdmin(DraggableMPTTAdmin):
 				except Page.DoesNotExist, PageHistory.DoesNotExist:
 					raise Http404
 			elif obj.status == 'D' and not obj.history_set.exists():
-				return HttpResponseRedirect('?revision=%d' % obj.draft_set.last().pk)
+				return HttpResponseRedirect(obj.draft_set.last().get_change_url())
 
 		return super(PageAdmin, self).changeform_view(request, object_id, form_url, extra_context)
 
@@ -164,7 +164,9 @@ class PageAdmin(DraggableMPTTAdmin):
 				raise Http404
 
 			if '_publish' in request.POST:
-				version.delete()
+				# A new history revision will be made when save_model is called.
+				if version.type == 'D':
+					version.delete()
 				obj.status = 'P'
 			else:
 				version.title = obj.title
@@ -177,6 +179,9 @@ class PageAdmin(DraggableMPTTAdmin):
 				version.save()
 				return
 
+		if not change and '_newdraft' not in request.POST:
+			obj.status = 'P'
+
 		obj.modified = now()
 		obj.modifier = request.user
 		super(PageAdmin, self).save_model(request, obj, form, change)
@@ -185,9 +190,7 @@ class PageAdmin(DraggableMPTTAdmin):
 		response = super(PageAdmin, self).response_add(request, obj)
 
 		if '_newdraft' in request.POST:
-			response['location'] = '%s?revision=%d' % (
-				reverse('admin:content_page_change', args=(obj.pk,)), obj.draft_set.first().pk
-			)
+			response['location'] = obj.draft_set.first().get_change_url()
 
 		return response
 
@@ -195,13 +198,13 @@ class PageAdmin(DraggableMPTTAdmin):
 		response = super(PageAdmin, self).response_change(request, obj)
 
 		if 'revision' in request.GET and '_continue' in request.POST:
-			response['location'] = '?revision=%d' % int(request.GET['revision'])
+			response['location'] = obj.get_change_url(int(request.GET['revision']))
 
 		if '_newdraft' in request.POST:
-			response['location'] = '?revision=%d' % obj.draft_set.first().pk
+			response['location'] = obj.draft_set.first().get_change_url()
 
 		if '_publish' in request.POST:
-			response['location'] = reverse('admin:content_page_change', args=(obj.pk,))
+			response['location'] = obj.get_change_url()
 
 		return response
 

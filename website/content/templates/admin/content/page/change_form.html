@@ -26,9 +26,7 @@
 		{% endif %}
 	{% else %}
 		This is the current version.
-		{% if original.status != 'D' %}
-			<input type="submit" value="Save as a draft" name="_newdraft" />
-		{% endif %}
+		<input type="submit" value="Save as a draft" name="_newdraft" />
 		<input type="submit" value="Save and continue editing" name="_continue" />
 	{% endif %}
 {% else %}

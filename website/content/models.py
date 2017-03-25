@@ -57,6 +57,12 @@ class Page(MPTTModel):
 	def history_set(self):
 		return self.revisions.filter(type='H').order_by('-modified')
 
+	def get_change_url(self, revision_id=None):
+		url = reverse('admin:content_page_change', args=(self.pk,))
+		if revision_id is None:
+			return url
+		return '%s?revision=%d' % (url, revision_id,)
+
 	def save(self, *args, **kwargs):
 		self.content = self.content.replace('\r', '')
 		self.extra_header_content = self.extra_header_content.replace('\r', '')
@@ -84,7 +90,7 @@ class PageHistory(models.Model):
 	def get_change_url(self):
 		if self.type == 'H':
 			return None
-		return reverse('admin:content_page_change', args=[self.page.pk]) + '?revision=%d' % self.pk
+		return self.page.get_change_url(self.pk)
 
 	def make_current(self, modifier):
 		if self.type == 'H':
