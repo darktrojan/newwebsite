@@ -33,6 +33,7 @@ class Page(MPTTModel):
 	modified = models.DateTimeField()
 	modifier = models.ForeignKey(settings.AUTH_USER_MODEL, editable=False)
 	status = models.CharField(max_length=1, choices=PUBLISH_STATUS_CHOICES, default='D')
+	# Update signals.py if changing field count.
 
 	def __unicode__(self):
 		return self.alias
@@ -63,10 +64,10 @@ class Page(MPTTModel):
 			return url
 		return '%s?revision=%d' % (url, revision_id,)
 
-	def save(self, *args, **kwargs):
+	def save(self, update_fields=None, **kwargs):
 		self.content = self.content.replace('\r', '')
 		self.extra_header_content = self.extra_header_content.replace('\r', '')
-		super(Page, self).save(*args, **kwargs)
+		super(Page, self).save(update_fields=update_fields, **kwargs)
 
 
 class PageHistory(models.Model):

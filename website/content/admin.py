@@ -174,6 +174,12 @@ class PageAdmin(DraggableMPTTAdmin):
 				version.extra_header_content = obj.extra_header_content
 				if version.type == 'D':
 					version.modified = datetime.now(UTC)
+					obj.modified = now()
+					obj.modifier = request.user
+					# Avoid saving a new revision.
+					obj.save(update_fields=[
+						'title', 'content', 'extra_header_content', 'modified', 'modifier'
+					])
 				elif version.type == 'F':
 					version.modified = obj.modified
 				version.save()

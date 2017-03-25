@@ -284,9 +284,8 @@ class VersioningTestCase(TestCase):
 
 		page = Page.objects.get(pk=1)
 		self.assertEqual(page.status, 'D')
-		# TODO page isn't updated here because it'd create another revision
-		# self.assertEqual(page.title, 'test 2')
-		# self.assertEqual(page.content, '<p>This is a second test</p>')
+		self.assertEqual(page.title, 'test 2')
+		self.assertEqual(page.content, '<p>This is a second test</p>')
 		self.assertEqual(page.revisions.count(), 1)
 
 		revision = page.revisions.last()
