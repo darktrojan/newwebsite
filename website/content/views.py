@@ -61,14 +61,14 @@ def page(request, extra_context=None):
 def all_pages(request):
 	pages = list()
 
-	for p in Page.objects.all().order_by('url'):
+	for p in Page.objects.all():
 		pages.append({
-			'url': p.url,
+			'url': p.get_absolute_url(),
 			'title': p.title,
 			'status': p.status
 		})
 
-	return JsonResponse(pages, safe=False)
+	return JsonResponse(sorted(pages, key=lambda x: x['url']), safe=False)
 
 
 def blog_list(request, year=None, date=None, tag=None, extra_context=None):
