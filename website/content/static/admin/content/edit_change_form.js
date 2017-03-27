@@ -36,6 +36,8 @@ textarea.form.onsubmit = function() {
 	}
 };
 
+textarea.parentNode.insertBefore(Edit.ToolbarUI.element, iframe);
+
 function read_input() {
 	var div = document.createElement('div');
 	div.innerHTML = textarea.value;

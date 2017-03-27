@@ -9,3 +9,50 @@
 	height: 80vh;
 	box-sizing: border-box;
 }
+/* Override defaults so toolbar can be inside form. */
+#edit_toolbar {
+	position: unset;
+	display: inline-block;
+	top: unset;
+	left: unset;
+	right: unset;
+	padding: unset;
+	border: unset;
+	background: unset;
+}
+#edit_nodetype_button {
+	width: 198px;
+	margin-left: 0 !important;
+}
+#edit_nodetype_dropdown {
+    top: 25px;
+    left: 0px;
+    width: 198px;
+}
+#edit_nodetype_dropdown h1,
+#edit_nodetype_dropdown h2,
+#edit_nodetype_dropdown h3,
+#edit_nodetype_dropdown p {
+	line-height: 30px;
+	background: transparent;
+	margin: 0;
+}
+#edit_nodetype_dropdown h1,
+#edit_nodetype_dropdown h2,
+#edit_nodetype_dropdown h3 {
+	font-weight: bold;
+	color: #383838;
+	padding: 0;
+}
+#edit_nodetype_dropdown h1 {
+	font-size: 20px;
+}
+#edit_nodetype_dropdown h2 {
+	font-size: 16px;
+}
+#edit_nodetype_dropdown h3 {
+	font-size: 14px;
+}
+#edit_nodetype_dropdown pre {
+	padding: 0;
+}
