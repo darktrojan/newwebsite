@@ -1,6 +1,7 @@
-Django==1.11.8
-django-mptt==0.8.7
+Django==1.11.18
+django-js-asset==1.1.0
+django-mptt==0.9.1
 easy-thumbnails==2.5
 olefile==0.44
 Pillow==4.3.0
-pytz==2017.3
+pytz==2018.9
