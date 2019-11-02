@@ -3,5 +3,5 @@ django-js-asset==1.1.0
 django-mptt==0.9.1
 easy-thumbnails==2.5
 olefile==0.44
-Pillow==4.3.0
+Pillow==6.2.0
 pytz==2019.1
