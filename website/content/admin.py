@@ -137,7 +137,9 @@ class PageAdmin(DraggableMPTTAdmin):
 			if 'revision' in request.GET:
 				try:
 					extra_context['revision'] = obj.revisions.get(pk=request.GET['revision'])
-				except Page.DoesNotExist, PageHistory.DoesNotExist:
+				except Page.DoesNotExist:
+					raise Http404
+				except PageHistory.DoesNotExist:
 					raise Http404
 			elif obj.status == 'D' and not obj.history_set.exists():
 				return HttpResponseRedirect(obj.draft_set.last().get_change_url())
