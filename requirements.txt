@@ -4,5 +4,5 @@ django-mptt==0.9.1
 easy-thumbnails==2.5
 mysqlclient==1.4.6
 olefile==0.44
-Pillow==7.0.0
+Pillow==8.2.0
 pytz==2019.3
