@@ -1,4 +1,4 @@
-Django==1.11.28
+Django==2.2.24
 django-js-asset==1.1.0
 django-mptt==0.9.1
 easy-thumbnails==2.5
